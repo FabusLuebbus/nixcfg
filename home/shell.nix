@@ -168,6 +168,10 @@
       la = "eza -la --git --group-directories-first";
       lt = "eza --tree --level=2";
       cat = "bat --paging=never";
+      # Same, minus line numbers/header/grid — so a mouse selection copies
+      # the file content and nothing else. `copyfile <f>` goes straight to
+      # the clipboard when you do not need to look at it first.
+      catp = "bat --paging=never --style=plain";
 
       g = "git";
       gs = "git status -sb";
