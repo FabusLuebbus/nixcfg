@@ -18,8 +18,8 @@
       system = "x86_64-linux";
 
       # ---- EDIT THESE TWO LINES ----
-      username = "CHANGEME_USER";
-      hostname = "CHANGEME_HOST";
+      username = "fabian";
+      hostname = "framenix";
       # ------------------------------
     in
     {
