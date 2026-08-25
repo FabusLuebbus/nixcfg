@@ -16,21 +16,19 @@
   outputs = { self, nixpkgs, home-manager, ... } @ inputs:
     let
       system = "x86_64-linux";
-
-      # ---- EDIT THESE TWO LINES ----
       username = "fabian";
-      hostname = "framenix";
-      # ------------------------------
-    in
-    {
-      nixosConfigurations.${hostname} = nixpkgs.lib.nixosSystem {
+
+      # One nixosSystem per host, all sharing the same user/home-manager wiring.
+      # Add a new host by dropping a `hosts/<hostname>/` directory (modeled on
+      # an existing one) and adding one line below.
+      mkHost = hostname: nixpkgs.lib.nixosSystem {
         inherit system;
 
         # Makes `inputs`, `username` and `hostname` available inside every module.
         specialArgs = { inherit inputs username hostname; };
 
         modules = [
-          ./hosts/laptop
+          ./hosts/${hostname}
 
           home-manager.nixosModules.home-manager
           {
@@ -42,5 +40,9 @@
           }
         ];
       };
+    in
+    {
+      nixosConfigurations.framenix = mkHost "framenix"; # laptop
+      nixosConfigurations.desknix = mkHost "desknix"; # nvidia desktop
     };
 }
