@@ -17,7 +17,10 @@
 
   programs.home-manager.enable = true;
 
-  home.sessionVariables.UV_PYTHON_PREFERENCE = "only-managed";
+  home.sessionVariables = {
+    UV_PYTHON_PREFERENCE = "only-managed";
+    NIXPKGS_ALLOW_UNFREE = "1";
+  };
 
   home.packages = with pkgs; [
     # modern CLI

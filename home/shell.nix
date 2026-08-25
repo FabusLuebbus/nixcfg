@@ -58,16 +58,17 @@
 
       ngen = "sudo nix-env --list-generations --profile /nix/var/nix/profiles/system";
       ngc = "sudo nix-collect-garbage --delete-older-than 14d";
-
-      # drop into a throwaway shell with packages available
-      ns = "nix shell nixpkgs#";
-      # run a package once without installing it
-      nr = "nix run nixpkgs#";
     };
 
     initContent = ''
       # uv-managed pythons live here
       export PATH="$HOME/.local/bin:$PATH"
+
+      # drop into a throwaway shell with a package available
+      # (--impure so NIXPKGS_ALLOW_UNFREE above actually takes effect)
+      ns() { nix shell --impure "nixpkgs#$1"; }
+      # run a package once without installing it
+      nr() { nix run --impure "nixpkgs#$1" -- "''${@:2}"; }
 
       # nicer word-jumping on the German keyboard
       bindkey "^[[1;5C" forward-word
