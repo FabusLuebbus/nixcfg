@@ -80,15 +80,6 @@
     gnome-extension-manager
   ];
 
-  # direnv + nix-direnv gives you per-project environments that activate on
-  # `cd`. Pairs well with uv: a two-line .envrc per repo and your venv,
-  # env vars and tool versions load automatically.
-  programs.direnv = {
-    enable = true;
-    nix-direnv.enable = true;
-    enableZshIntegration = true;
-  };
-
   # ---- Bringing existing dotfiles across -----------------------------------
   # Do NOT rewrite your Neovim config in Nix. Point at the real files:
   #
