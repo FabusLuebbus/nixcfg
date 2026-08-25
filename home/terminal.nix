@@ -1,27 +1,18 @@
 { pkgs, ... }:
 
 {
-  programs.kitty = {
-    enable = true;
-    font = {
-      name = "JetBrainsMono Nerd Font";
-      size = 12;
-    };
-    settings = {
-      scrollback_lines = 20000;
-      enable_audio_bell = false;
-      confirm_os_window_close = 0;
-      window_padding_width = 6;
-      copy_on_select = "clipboard";
-      # kitty's own tabs/splits — handy locally, tmux still wins for remote
-      tab_bar_edge = "top";
-      tab_bar_style = "powerline";
-    };
-    keybindings = {
-      "ctrl+shift+enter" = "new_window";
-      "ctrl+shift+t" = "new_tab";
-    };
-  };
+  xdg.configFile."ghostty/config".text = ''
+    font-family = JetBrainsMono Nerd Font
+    font-size = 12
+    window-padding-x = 6
+    window-padding-y = 6
+    scrollback-limit = 100000000
+    copy-on-select = clipboard
+    confirm-close-surface = false
+
+    keybind = ctrl+shift+enter=new_window
+    keybind = ctrl+shift+t=new_tab
+  '';
 
   # ==========================================================================
   # tmux matters more than usual for you: run it ON THE REMOTE BOX so a
@@ -74,5 +65,9 @@
 
   # mosh survives suspend and network changes far better than raw ssh —
   # worth having when you work on remote machines from a laptop.
-  home.packages = [ pkgs.mosh ];
+  #
+  # No home-manager module for ghostty yet (as of home-manager 26.05), so
+  # it's just a package + the plain config file above — same pattern as the
+  # "bringing existing dotfiles" note in home/default.nix.
+  home.packages = [ pkgs.mosh pkgs.ghostty ];
 }

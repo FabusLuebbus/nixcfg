@@ -78,5 +78,18 @@
       natural-scroll = true;
       tap-to-click = true;
     };
+    # GNOME dropped the old built-in "terminal" media-key binding, so a
+    # custom keybinding pointing at an explicit command is the only way
+    # to do this declaratively.
+    "org/gnome/settings-daemon/plugins/media-keys" = {
+      custom-keybindings = [
+        "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
+      ];
+    };
+    "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0" = {
+      name = "Open Terminal";
+      command = "${pkgs.ghostty}/bin/ghostty";
+      binding = "<Primary><Alt>t";
+    };
   };
 }
