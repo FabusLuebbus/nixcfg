@@ -38,10 +38,12 @@
 
     # apps
     firefox
-    vscode        # uncomment if you use it
+    vscode
     slack
     spotify
     discord
+    bitwarden-desktop
+    libreoffice
 
     #desktop env
     gnome-extension-manager
