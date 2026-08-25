@@ -8,6 +8,12 @@
   #   services.desktopManager.plasma6.enable = true;
   services.displayManager.gdm.enable = true;
   services.desktopManager.gnome.enable = true;
+  # environment.systemPackages does NOT put a package's typelib on the
+  # session's GI_TYPELIB_PATH — gnome-shell needs it via sessionPath instead.
+  # Without this, extensions that use GMenu (e.g. ArcMenu) fail with
+  # "Typelib file for namespace 'GMenu' (any version) not found".
+  # https://github.com/NixOS/nixpkgs/issues/325497
+  services.desktopManager.gnome.sessionPath = [ pkgs.gnome-menus ];
 
   # Keyboard layout for the graphical session.
   services.xserver.xkb = {
@@ -49,10 +55,6 @@
   environment.systemPackages = with pkgs; [
     gnome-tweaks
     dconf-editor
-    # gnome-menus: not pulled in by a NixOS GNOME install by default, but
-    # shell extensions (e.g. Astra Monitor) that use GMenu to enumerate app
-    # categories need its GMenu-3.0 typelib on GI_TYPELIB_PATH.
-    gnome-menus
   ];
 
   # Portals — needed for Flatpak and screen sharing to behave.
