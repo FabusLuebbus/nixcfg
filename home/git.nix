@@ -4,12 +4,12 @@
   programs.git = {
     enable = true;
 
-    # ---- EDIT THESE ----
-    userName = "Fabian Luebbe";
-    userEmail = "fabian.luebbe@gmail.com";
-    # --------------------
+    settings = {
+      # ---- EDIT THESE ----
+      user.name = "Fabian Luebbe";
+      user.email = "fabian.luebbe@gmail.com";
+      # --------------------
 
-    extraConfig = {
       init.defaultBranch = "main";
       pull.rebase = true;
       push.autoSetupRemote = true;
@@ -20,16 +20,16 @@
       # Commit signing — uncomment once your key is in place.
       # user.signingkey = "CHANGEME";
       # commit.gpgsign = true;
-    };
 
-    aliases = {
-      st = "status -sb";
-      co = "checkout";
-      br = "branch";
-      lg = "log --oneline --graph --decorate --all";
-      last = "log -1 HEAD --stat";
-      unstage = "reset HEAD --";
-      amend = "commit --amend --no-edit";
+      alias = {
+        st = "status -sb";
+        co = "checkout";
+        br = "branch";
+        lg = "log --oneline --graph --decorate --all";
+        last = "log -1 HEAD --stat";
+        unstage = "reset HEAD --";
+        amend = "commit --amend --no-edit";
+      };
     };
 
     ignores = [
@@ -41,14 +41,15 @@
       ".ruff_cache/"
       ".ipynb_checkpoints/"
     ];
+  };
 
-    delta = {
-      enable = true;
-      options = {
-        navigate = true;
-        line-numbers = true;
-        side-by-side = false;
-      };
+  programs.delta = {
+    enable = true;
+    enableGitIntegration = true;
+    options = {
+      navigate = true;
+      line-numbers = true;
+      side-by-side = false;
     };
   };
 
