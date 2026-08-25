@@ -67,6 +67,7 @@
     # media
     spotify
     handbrake
+    jellyfin-desktop
 
     # desktop env
     gnome-extension-manager
