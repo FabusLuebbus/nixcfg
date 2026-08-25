@@ -66,7 +66,7 @@
     libreoffice
     thunderbird
     vlc
-    zathura
+    papers
 
     # communication
     slack
