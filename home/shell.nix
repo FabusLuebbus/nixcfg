@@ -189,6 +189,8 @@
       nrt = "sudo nixos-rebuild test --flake ~/nixcfg";
       # update all flake inputs (nixpkgs, home-manager)
       nup = "nix flake update --flake ~/nixcfg";
+      # standard commit flake.lock after nup
+      ncf = "cd ~/nixcfg && git add flake.lock && git commit -m 'update flake'";
 
       # edit default.nix with neovim
       defaultedit = "nvim ~/nixcfg/home/default.nix";
