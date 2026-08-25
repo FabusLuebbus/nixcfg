@@ -7,6 +7,7 @@
     ./ssh.nix
     ./terminal.nix
     ./claude-code.nix
+    ./gnome-extensions.nix
   ];
 
   home.username = username;
@@ -99,10 +100,8 @@
   #     config.lib.file.mkOutOfStoreSymlink "/home/${username}/nixcfg/dotfiles/nvim";
   # --------------------------------------------------------------------------
 
-  programs.gnome-shell = {
-    enable = true;
-    extensions = [ ];
-  };
+  # programs.gnome-shell is configured in ./gnome-extensions.nix.
+
   # Bitwarden defaults to launching at login and writes this file itself on
   # every start, so the app's own setting only fixes a machine that has already
   # run it once — a fresh install would autostart before we ever got a say.
