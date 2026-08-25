@@ -65,3 +65,28 @@ those two, skip straight to step 2. For a third, new host: add a
 
 Never touch `system.stateVersion` / `home.stateVersion` after this point —
 see `AGENTS.md` for the full rules governing this repo.
+
+## On `desknix` / any nvidia host: do NOT enable `cudaSupport`
+
+`modules/nvidia.nix` deliberately does **not** set
+`nixpkgs.config.cudaSupport = true`. That flag makes Nix build CUDA-enabled
+variants of anything in nixpkgs that offers one (`opencv`, `ffmpeg-full`,
+...) from source. On the first `desknix` bootstrap this cascaded into a
+multi-hour `opencv`+CUDA compile that OOM'd the machine at ~10% done — the
+`cuda-maintainers.cachix.org` binary cache mostly targets
+`nixpkgs-unstable`, not the `nixos-26.05` pin this repo uses, so those
+builds mostly missed cache and compiled locally instead.
+
+You very likely don't need it:
+- `hardware.nvidia-container-toolkit.enable = true` (already on) is what
+  gives `docker run --gpus all` GPU access — containers bring their own
+  CUDA runtime, so this alone is enough for GPU-in-Docker.
+- PyTorch/etc. run through `uv`-managed prebuilt wheels (see the `nix-ld`
+  block in `modules/dev.nix`), which bundle their own CUDA libs and only
+  need the driver, not a Nix-built CUDA toolchain.
+
+If some future package genuinely needs a Nix-built CUDA variant, scope it
+to that one derivation (an overlay + `pkgs.cudaPackages`) rather than
+flipping the global `cudaSupport` switch — the global flag is what turns a
+targeted build into an unbounded, memory-hungry rebuild of your whole
+media/graphics stack.
