@@ -7,6 +7,15 @@
     autosuggestion.enable = true;
     syntaxHighlighting.enable = true;
 
+    # oh-my-zsh for its plugin ecosystem and the agnoster prompt theme.
+    oh-my-zsh = {
+      enable = true;
+      theme = "agnoster";
+      plugins = [
+        # plugin names go here, e.g. "git" "sudo" "fzf"
+      ];
+    };
+
     history = {
       size = 100000;
       save = 100000;
@@ -57,8 +66,11 @@
     '';
   };
 
+  # Disabled: its init script sets PROMPT after oh-my-zsh, which would
+  # silently override the agnoster theme above. Re-enable and drop the
+  # omz theme back to "" if you switch back to starship.
   programs.starship = {
-    enable = true;
+    enable = false;
     enableZshIntegration = true;
     settings = {
       add_newline = true;
