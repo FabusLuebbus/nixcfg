@@ -5,8 +5,8 @@
     enable = true;
 
     # ---- EDIT THESE ----
-    userName = "CHANGEME Your Name";
-    userEmail = "CHANGEME you@example.com";
+    userName = "Fabian Luebbe";
+    userEmail = "fabian.luebbe@gmail.com";
     # --------------------
 
     extraConfig = {

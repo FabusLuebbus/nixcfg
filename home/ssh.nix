@@ -21,41 +21,41 @@
       # ---------------------------------------------------------- templates
       # Copy-paste and rename one of these per remote machine.
 
-      "gpu-box" = {
-        hostname = "CHANGEME.example.com";
-        user = "CHANGEME";
-        identityFile = "~/.ssh/id_ed25519";
-        forwardAgent = true; # lets you git-clone on the remote with local keys
-        serverAliveInterval = 60;
-        serverAliveCountMax = 3;
-
-        # Connection multiplexing — second and later connections to the same
-        # host are instant. Big deal when an editor opens several at once.
-        controlMaster = "auto";
-        controlPath = "~/.ssh/sockets/%r@%h:%p";
-        controlPersist = "10m";
-
+#      "gpu-box" = {
+#        hostname = "CHANGEME.example.com";
+#        user = "CHANGEME";
+#        identityFile = "~/.ssh/id_ed25519";
+#        forwardAgent = true; # lets you git-clone on the remote with local keys
+#        serverAliveInterval = 60;
+#        serverAliveCountMax = 3;
+#
+#        # Connection multiplexing — second and later connections to the same
+#        # host are instant. Big deal when an editor opens several at once.
+#        controlMaster = "auto";
+#        controlPath = "~/.ssh/sockets/%r@%h:%p";
+#        controlPersist = "10m";
+#
         # Forward a Jupyter/TensorBoard port automatically on connect:
         # localForwards = [
         #   { bind.port = 8888; host.address = "localhost"; host.port = 8888; }
         #   { bind.port = 6006; host.address = "localhost"; host.port = 6006; }
         # ];
-      };
+#      };
 
       # A box only reachable through a bastion/jump host.
-      "cluster-node" = {
-        hostname = "CHANGEME-internal";
-        user = "CHANGEME";
-        proxyJump = "jump";
-        identityFile = "~/.ssh/id_ed25519";
-        forwardAgent = true;
-      };
-
-      "jump" = {
-        hostname = "CHANGEME-bastion.example.com";
-        user = "CHANGEME";
-        identityFile = "~/.ssh/id_ed25519";
-      };
+#      "cluster-node" = {
+#        hostname = "CHANGEME-internal";
+#        user = "CHANGEME";
+#        proxyJump = "jump";
+#        identityFile = "~/.ssh/id_ed25519";
+#        forwardAgent = true;
+#      };
+#
+#      "jump" = {
+#        hostname = "CHANGEME-bastion.example.com";
+#        user = "CHANGEME";
+#        identityFile = "~/.ssh/id_ed25519";
+#      };
 
       # ------------------------------------------------------------ forges
       "github.com" = {
