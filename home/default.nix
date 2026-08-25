@@ -48,6 +48,7 @@
     proton-vpn
     solaar
     synology-drive-client
+    xdotool
 
     # essential apps
     firefox
