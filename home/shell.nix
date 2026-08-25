@@ -223,15 +223,46 @@
       # implicitly by a programs.*.enable, and sees them before a switch has
       # happened. Matches package names, not binaries -- wl-clipboard, not
       # wl-copy. No argument lists everything; exits non-zero when nothing
-      # matches, so `haspkg foo && ...` works.
+      # matches, so `haspkg foo && ...` works. Also greps the repo for the
+      # file(s) that literally name the package, since that's lost once the
+      # eval merges everything into one list; falls back to "implicit" when
+      # nothing matches (e.g. pulled in by a programs.*.enable).
       haspkg() {
-        nix eval --raw ~/nixcfg#nixosConfigurations.framenix --apply '
+        local out
+        out=$(nix eval --raw ~/nixcfg#nixosConfigurations.framenix --apply '
           c: let
             fmt = tag: map (p: tag + "\t" + (p.pname or p.name or "?"));
           in builtins.concatStringsSep "\n" (
             fmt "system" c.config.environment.systemPackages
             ++ fmt "home" c.config.home-manager.users.fabian.home.packages
-          )' 2>/dev/null | sort -u | grep -i --color=auto -- "''${1:-}"
+          )' 2>/dev/null | sort -u | grep -i -- "''${1:-}" | while IFS=$'\t' read -r tag pkg; do
+          files=$(grep -rlw --include='*.nix' -- "$pkg" ~/nixcfg | sed "s#$HOME/nixcfg/##" | paste -sd, -)
+          printf '%s\t%s\t%s\n' "$tag" "$pkg" "''${files:-implicit}"
+        done)
+        [[ -z $out ]] && return 1
+        { printf 'TAG\tPACKAGE\tFILES\n'; printf '%s\n' "$out"; } | awk -F'\t' \
+          -v border=$'\e[38;2;108;112;134m' -v head=$'\e[1;38;2;203;166;247m' -v reset=$'\e[0m' '
+          NR==1 { for (i=1;i<=NF;i++) { header[i]=$i; w[i]=length($i) } next }
+          { n++; for (i=1;i<=NF;i++) { row[n,i]=$i; if (length($i)>w[i]) w[i]=length($i) }; cols=NF }
+          END {
+            top="╭"; mid="├"; bot="╰"
+            for (i=1;i<=cols;i++) {
+              bar=sprintf("%*s",w[i]+2,""); gsub(/ /,"─",bar)
+              top=top bar (i<cols?"┬":"╮")
+              mid=mid bar (i<cols?"┼":"┤")
+              bot=bot bar (i<cols?"┴":"╯")
+            }
+            printf "%s%s%s\n", border, top, reset
+            printf "%s│%s", border, reset
+            for (i=1;i<=cols;i++) printf " %s%-*s%s %s│%s", head, w[i], header[i], reset, border, reset
+            printf "\n%s%s%s\n", border, mid, reset
+            for (r=1;r<=n;r++) {
+              printf "%s│%s", border, reset
+              for (i=1;i<=cols;i++) printf " %-*s %s│%s", w[i], row[r,i], border, reset
+              printf "\n"
+            }
+            printf "%s%s%s\n", border, bot, reset
+          }'
       }
 
       # nicer word-jumping on the German keyboard
