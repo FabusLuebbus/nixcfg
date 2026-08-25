@@ -42,7 +42,16 @@
     # essential apps
     firefox
     vscode
-    bitwarden-desktop
+    # WORKAROUND (2026-08-25): pinned to unstable to escape a broken stable
+    # version. 2026.7.0 in nixos-26.05 routes clipboard writes through the XDG
+    # portal, which fails because Bitwarden marks its process non-dumpable, so
+    # the portal can't read /proc/<pid>/root — copy password silently no-ops.
+    # Fixed upstream in 2026.8.0 (bitwarden/clients#22062).
+    # REMOVE once nixos-26.05 carries >= 2026.8.0; check with:
+    #   nix eval --raw nixpkgs#bitwarden-desktop.version
+    # then drop the `unstable.` prefix and this comment.
+    # https://github.com/bitwarden/clients/issues/22030
+    unstable.bitwarden-desktop
     libreoffice
     backintime
     synology-drive-client
