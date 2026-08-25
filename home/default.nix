@@ -145,8 +145,11 @@
       binding = "<Super>e";
     };
     "org/gnome/shell/extensions/tilingshell" = {
-      inner-gaps = 4;
-      outer-gaps = 0;
+      # inner-gaps/outer-gaps are uint32 (type "u") in tilingshell's schema;
+      # a plain int here writes as int32, which GSettings treats as a type
+      # mismatch and silently falls back to the schema defaults (16/8).
+      inner-gaps = lib.hm.gvariant.mkUint32 4;
+      outer-gaps = lib.hm.gvariant.mkUint32 2;
       span-window-all-tiles = [ "<Control><Super>space" ];
       span-window-down = [ "<Control><Super>Down" ];
       span-window-left = [ "<Control><Super>Left" ];
