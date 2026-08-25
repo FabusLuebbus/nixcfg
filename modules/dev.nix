@@ -89,6 +89,7 @@
     gnumake
     cmake
     pkg-config
+    linuxHeaders
 
     # remote work — where your actual ML happens
     openssh
@@ -96,6 +97,11 @@
     rsync
     sshfs
   ];
+
+  # NixOS has no /usr/include, so <linux/input.h> and friends (needed to
+  # build packages like evdev, which ships source-only on PyPI) aren't found
+  # by default. Point the compiler at nixpkgs' copy globally.
+  environment.variables.C_INCLUDE_PATH = "${pkgs.linuxHeaders}/include";
 
   # Larger inotify limits — language servers and file watchers hit the
   # default ceiling on big repos.
