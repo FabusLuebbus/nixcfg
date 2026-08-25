@@ -226,7 +226,10 @@
       # matches, so `haspkg foo && ...` works. Also greps the repo for the
       # file(s) that literally name the package, since that's lost once the
       # eval merges everything into one list; falls back to "implicit" when
-      # nothing matches (e.g. pulled in by a programs.*.enable).
+      # nothing matches (e.g. pulled in by a programs.*.enable). gnome-shell
+      # extensions are declared by their short pkgs.gnomeExtensions attr but
+      # eval to a pname prefixed with "gnome-shell-extension-", so the file
+      # search retries with that prefix stripped.
       haspkg() {
         local out
         out=$(nix eval --raw ~/nixcfg#nixosConfigurations.framenix --apply '
@@ -235,8 +238,14 @@
           in builtins.concatStringsSep "\n" (
             fmt "system" c.config.environment.systemPackages
             ++ fmt "home" c.config.home-manager.users.fabian.home.packages
+            ++ fmt "extension" (map (e: e.package) (
+              c.config.home-manager.users.fabian.programs.gnome-shell.extensions or [ ]
+            ))
           )' 2>/dev/null | sort -u | grep -i -- "''${1:-}" | while IFS=$'\t' read -r tag pkg; do
           files=$(grep -rlw --include='*.nix' -- "$pkg" ~/nixcfg | sed "s#$HOME/nixcfg/##" | paste -sd, -)
+          if [[ -z $files && $pkg == gnome-shell-extension-* ]]; then
+            files=$(grep -rlw --include='*.nix' -- "''${pkg#gnome-shell-extension-}" ~/nixcfg | sed "s#$HOME/nixcfg/##" | paste -sd, -)
+          fi
           printf '%s\t%s\t%s\n' "$tag" "$pkg" "''${files:-implicit}"
         done)
         [[ -z $out ]] && return 1
