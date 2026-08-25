@@ -126,6 +126,24 @@
     Hidden=true
   '';
 
+  # Synology Drive Client's own "Start when you login" checkbox is broken on
+  # Linux: toggling it off unlinks this file, but toggling it back on never
+  # recreates it (confirmed by straceing the GUI through both toggles - the
+  # "on" path makes no filesystem calls at all). Writing the entry ourselves,
+  # copied from the app's own bundled template at
+  # opt/Synology/SynologyDrive/synology-drive-autostart, is what actually
+  # makes it start at login.
+  xdg.configFile."autostart/synology-drive-autostart.desktop".text = ''
+    [Desktop Entry]
+    Name=Synology Drive Client
+    Comment=Synology Drive Client
+    Exec=synology-drive autostart
+    Icon=synology-drive
+    Terminal=false
+    Type=Application
+    Categories=Network;FileTransfer;
+  '';
+
   # GNOME's Mutter doesn't implement the Wayland server-side-decoration
   # protocol, so on native Wayland Chromium/Electron always draws its own
   # window frame — and that self-drawn frame doesn't follow dark mode.
