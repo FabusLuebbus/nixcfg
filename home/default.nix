@@ -99,6 +99,21 @@
     enable = true;
     extensions = [ ];
   };
+  # Bitwarden defaults to launching at login and writes this file itself on
+  # every start, so the app's own setting only fixes a machine that has already
+  # run it once — a fresh install would autostart before we ever got a say.
+  # Owning the path is what makes it reproducible: the link points into the
+  # read-only store, so Bitwarden's write fails (EROFS, logged and harmless)
+  # and Hidden=true keeps GNOME from launching the entry regardless.
+  # Turning the setting off in-app as well is what keeps that error out of the
+  # log; it is not what makes this stick.
+  xdg.configFile."autostart/bitwarden.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Bitwarden
+    Hidden=true
+  '';
+
   # GNOME settings, declared. Fill in more once you know what you want —
   # `dconf watch /` in a terminal shows you the key for anything you change
   # in the GUI, which you can then paste in here.
