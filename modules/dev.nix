@@ -45,14 +45,14 @@
       fontconfig
 
       # X libs — needed by opencv-python and various plotting backends
-      xorg.libX11
-      xorg.libXext
-      xorg.libXrender
-      xorg.libXi
-      xorg.libXrandr
-      xorg.libSM
-      xorg.libICE
-      xorg.libxcb
+      libx11
+      libxext
+      libxrender
+      libxi
+      libxrandr
+      libsm
+      libice
+      libxcb
 
       # occasionally required by ML tooling talking to remote clusters
       libffi
