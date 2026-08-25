@@ -75,7 +75,7 @@
   # Rule of thumb: system packages are things needed to REPAIR a broken system.
   environment.systemPackages = with pkgs; [
     git
-    vim
+    neovim
     wget
     curl
     pciutils

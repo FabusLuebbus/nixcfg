@@ -36,9 +36,6 @@
     unzip
     p7zip
 
-    # editors
-    neovim
-
     # apps
     firefox
     vscode        # uncomment if you use it
