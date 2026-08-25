@@ -50,7 +50,7 @@
       nup = "nix flake update --flake ~/nixcfg";
 
       # edit default.nix with neovim
-      defedit = "nvim ~/nixcfg/home/default.nix";
+      defaultedit = "nvim ~/nixcfg/home/default.nix";
       # edit shell.nix with neovim
       shelledit = "nvim ~/nixcfg/home/shell.nix";
       # edit base.nix with neovim
