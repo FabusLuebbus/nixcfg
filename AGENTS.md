@@ -47,15 +47,19 @@ or leak secrets into a public git history, so be conservative.
   a dry build to catch evaluation errors before telling the user the
   change works:
   ```
-  sudo nixos-rebuild dry-build --flake .#framenix
+  nixos-rebuild dry-build --flake ~/nixcfg#framenix
   ```
-  Only run `nixos-rebuild switch` (or `boot`) when the user explicitly
-  asks to apply the change to the running system — it's a system-wide,
-  hard-to-fully-reverse action.
-- **home-manager changes are lower-risk than NixOS changes** but still
-  verify with `home-manager build --flake .#fabian` (or equivalent) before
-  claiming a change is correct, since a broken home-manager generation can
-  still lock the user out of their shell.
+  No `sudo` needed — `dry-build` only evaluates and builds the closure, it
+  never touches `/etc` or the system profile, so plain user perms are
+  enough. Only run `nixos-rebuild switch` (or `boot`) — which does need
+  `sudo` — when the user explicitly asks to apply the change to the
+  running system; it's a system-wide, hard-to-fully-reverse action.
+- **home-manager is wired in as a NixOS module here** (see
+  `home-manager.users.${username}` in `flake.nix`), not a standalone
+  flake output — there is no `homeConfigurations` output and no
+  `home-manager` CLI on `$PATH`. The `nixos-rebuild dry-build` above
+  already covers home-manager changes; don't try `home-manager build
+  --flake .#fabian`, it doesn't exist in this setup.
 - **Respect the existing module layering**:
   - `flake.nix` — inputs and top-level wiring only.
   - `hosts/<hostname>/` — hardware + boot config for one machine.
