@@ -1,6 +1,14 @@
-{ pkgs, username, ... }:
-
+{ pkgs, username, inputs, ... }:
 {
+  nixpkgs.overlays = [
+    (final: prev: {
+      unstable = import inputs.nixpkgs-unstable {
+        system = prev.stdenv.hostPlatform.system;
+        config.allowUnfree = true;
+      };
+    })
+  ];
+
   # ---------------------------------------------------------------- nix itself
   nix.settings = {
     experimental-features = [ "nix-command" "flakes" ];
@@ -23,7 +31,6 @@
     dates = "weekly";
     options = "--delete-older-than 14d";
   };
-
   nixpkgs.config.allowUnfree = true;
 
   # ------------------------------------------------------------ locale / time

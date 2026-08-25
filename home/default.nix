@@ -6,6 +6,7 @@
     ./git.nix
     ./ssh.nix
     ./terminal.nix
+    ./claude-code.nix
   ];
 
   home.username = username;
