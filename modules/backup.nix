@@ -18,6 +18,14 @@ in
         should never be auto-mounted (e.g. an unrelated encrypted volume).
       '';
     };
+    daily = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Also trigger the backup on a daily timer, for hosts where the
+        drive stays permanently connected instead of being hotplugged.
+      '';
+    };
   };
 
   config = {
@@ -78,6 +86,21 @@ in
       ''}";
       ExecStart =
         "${pkgs.backintime-common}/bin/backintime --profile 1 --config /home/fabian/.config/backintime/config backup --quiet";
+    };
+  };
+
+  # --- Daily timer -------------------------------------------------------------
+  # For hosts where the backup drive stays permanently connected (desktops)
+  # rather than getting plugged in occasionally (laptops): the udev hotplug
+  # trigger above never fires again after the initial boot-time mount, so
+  # give those hosts an explicit daily nudge instead. The ExecCondition
+  # above still applies, so this is a no-op if a backup already ran today.
+  systemd.timers.backintime-backup = lib.mkIf cfg.daily {
+    description = "Daily trigger for Back In Time backup";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "daily";
+      Persistent = true;
     };
   };
   };

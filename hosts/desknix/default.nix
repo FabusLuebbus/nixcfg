@@ -25,6 +25,11 @@
   # then replace this value before the first `switch`.
   _module.args.backupFsUuid = "00000000-0000-0000-0000-000000000000";
 
+  # Desktop, not laptop — the backup drive stays plugged in permanently
+  # rather than getting connected occasionally, so run on a daily timer
+  # instead of relying solely on the hotplug trigger.
+  myBackup.daily = true;
+
   # UEFI bootloader. If the installer used legacy BIOS/GRUB instead, delete
   # these three lines and keep whatever it generated.
   boot.loader.systemd-boot.enable = true;
