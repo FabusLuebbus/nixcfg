@@ -45,6 +45,7 @@
     # util
     wl-clipboard
     openvpn
+    solaar
 
     # essential apps
     firefox
