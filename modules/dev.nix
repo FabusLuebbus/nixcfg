@@ -82,7 +82,6 @@
 
     # python / ml tooling — uv manages project envs, these are the system floor
     uv
-    python3
     ruff
 
     # build essentials, for anything that compiles at install time
