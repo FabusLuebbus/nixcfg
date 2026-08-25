@@ -157,6 +157,7 @@
 
     shellAliases = {
       ade = "gnome-session-quit --logout --no-prompt";
+      roschue = "systemctl hibernate";
 
       # Trailing space is load-bearing: it makes zsh expand the *next* word as
       # an alias too, so `sudo nrs` and friends still resolve.

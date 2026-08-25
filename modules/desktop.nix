@@ -42,6 +42,16 @@
   # ------------------------------------------------------------------ laptop
   services.libinput.enable = true;
   services.power-profiles-daemon.enable = true;
+  services.fprintd.enable = true;
+  # fprintd.enable defaults fprintAuth to true for every PAM service,
+  # which would let a fingerprint satisfy `sudo` too. Restrict it to
+  # GDM's own login/unlock services only.
+  security.pam.services = {
+    sudo.fprintAuth = false;
+    su.fprintAuth = false;
+    login.fprintAuth = false;
+    polkit-1.fprintAuth = false;
+  };
 
   # -------------------------------------------------------- trim GNOME bloat
   environment.gnome.excludePackages = with pkgs; [
