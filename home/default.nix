@@ -41,9 +41,13 @@
 
     # apps
     firefox
-    # vscode        # uncomment if you use it
-    # slack
-    # spotify
+    vscode        # uncomment if you use it
+    slack
+    spotify
+    discord
+
+    #desktop env
+    gnome-extension-manager
   ];
 
   # direnv + nix-direnv gives you per-project environments that activate on
@@ -69,6 +73,10 @@
   #     config.lib.file.mkOutOfStoreSymlink "/home/${username}/nixcfg/dotfiles/nvim";
   # --------------------------------------------------------------------------
 
+  programs.gnome-shell = {
+    enable = true;
+    extensions = [ ];
+  };
   # GNOME settings, declared. Fill in more once you know what you want —
   # `dconf watch /` in a terminal shows you the key for anything you change
   # in the GUI, which you can then paste in here.
