@@ -10,16 +10,37 @@ those two, skip straight to step 2. For a third, new host: add a
 
 1. **Install NixOS** normally from the ISO (partition, `nixos-install`, reboot).
 
-2. **Clone this repo:**
+2. **Clone this repo.** The freshly-installed system has no `git` and,
+   depending on how you partitioned/networked, may not have a network
+   connection yet either:
    ```
+   # If networking isn't up (check with `ping -c1 nixos.org`), bring it up
+   # first — NetworkManager is the default on the graphical ISO / most
+   # installs here:
+   nmcli device wifi connect "<ssid>" password "<password>"   # wifi
+   # or just plug in ethernet, DHCP handles the rest
+
    nix-shell -p git --run "git clone <this-repo-url> ~/nixcfg"
    ```
+   `nix-shell -p git` is enough — nixpkgs' `git` derivation wires up its own
+   CA bundle, so HTTPS clones work without any extra SSL setup. If clones
+   still fail with a certificate error, you're almost always looking at a
+   networking/DNS problem, not a missing cert.
 
 3. **Copy the generated hardware config**, using this machine's hostname
    (`framenix` or `desknix`):
    ```
    cp /etc/nixos/hardware-configuration.nix ~/nixcfg/hosts/<hostname>/hardware-configuration.nix
    ```
+   Then `git add` it right away:
+   ```
+   git -C ~/nixcfg add hosts/<hostname>/hardware-configuration.nix
+   ```
+   Nix flakes only see files tracked by git. Skip this and the next step
+   fails with a confusing `error: … is not tracked by Git` buried under an
+   unrelated-looking `seq`/`modules.nix` stack trace — if you see that,
+   this is why. (You don't need to `git add` every subsequent edit before
+   a `dry-build`, only a *new* file the first time it's created.)
 
 4. **Check `hosts/<hostname>/default.nix`:**
    - If the installer used GRUB instead of UEFI `systemd-boot`, delete the
