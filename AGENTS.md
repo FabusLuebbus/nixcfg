@@ -93,3 +93,8 @@ or leak secrets into a public git history, so be conservative.
 - **This machine has no `apt`, no system Python, no global `pip`.** Never
   suggest or use those. Python tooling goes through `uv`; anything else
   belongs in a Nix package or `home.packages`.
+- **Use `haspkg` for the initial lookup when locating package
+  declarations** — don't synthesize a fresh `grep`/`find` command for the
+  first search. Once `haspkg` has narrowed things down, further digging
+  (reading the matched files, tracing imports, etc.) with custom commands
+  is fine.
