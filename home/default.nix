@@ -99,6 +99,19 @@
     enable = true;
     extensions = [ ];
   };
+  # Bitwarden re-enables its own autostart on every launch (its desktop_core
+  # writes ~/.config/autostart/bitwarden.desktop directly), so removing the
+  # entry in GNOME Tweaks only lasts until the next start. Own the file here
+  # instead: home-manager points it at the read-only store, so the app's write
+  # fails and Hidden=true stops GNOME from launching it. Drop this if Bitwarden
+  # ever learns to respect a removed entry.
+  xdg.configFile."autostart/bitwarden.desktop".text = ''
+    [Desktop Entry]
+    Type=Application
+    Name=Bitwarden
+    Hidden=true
+  '';
+
   # GNOME settings, declared. Fill in more once you know what you want —
   # `dconf watch /` in a terminal shows you the key for anything you change
   # in the GUI, which you can then paste in here.
