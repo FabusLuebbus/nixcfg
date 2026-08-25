@@ -38,6 +38,13 @@
     duf
     unzip
     p7zip
+    fastfetch # what the `neofetch` alias actually runs
+
+    # Both were standalone curl-installers on the old machine (~/.bun,
+    # ~/.opencode/bin) with hand-rolled PATH exports. nixpkgs has both, so
+    # they come from here instead and the PATH lines are gone.
+    bun
+    opencode
 
     # essential apps
     firefox
