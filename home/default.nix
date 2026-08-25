@@ -40,18 +40,10 @@
     duf
     unzip
     p7zip
-    fastfetch # what the `neofetch` alias actually runs
+    fastfetch
 
-    # Backend for oh-my-zsh's clipcopy on Wayland. Without it the copyfile,
-    # copypath and copybuffer plugins fail silently — they detect no
-    # clipboard command and just do nothing.
+    # util
     wl-clipboard
-
-    # Both were standalone curl-installers on the old machine (~/.bun,
-    # ~/.opencode/bin) with hand-rolled PATH exports. nixpkgs has both, so
-    # they come from here instead and the PATH lines are gone.
-    bun
-    opencode
 
     # essential apps
     firefox
