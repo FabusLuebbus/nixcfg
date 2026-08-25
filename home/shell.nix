@@ -275,6 +275,11 @@
     defaultCommand = "fd --type f --hidden --exclude .git";
   };
 
-  programs.bat.enable = true;
+  # bat ships the Catppuccin themes built in, so this needs no theme file.
+  # Set here rather than via BAT_THEME so `bat` and its use as $PAGER agree.
+  programs.bat = {
+    enable = true;
+    config.theme = "Catppuccin Mocha";
+  };
   programs.eza.enable = true;
 }
