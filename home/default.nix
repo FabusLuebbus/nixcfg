@@ -44,6 +44,7 @@
 
     # util
     wl-clipboard
+    openvpn
 
     # essential apps
     firefox
