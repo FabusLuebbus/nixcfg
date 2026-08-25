@@ -42,6 +42,7 @@
   # ------------------------------------------------------------------ laptop
   services.libinput.enable = true;
   services.power-profiles-daemon.enable = true;
+  services.fprintd.enable = true;
 
   # -------------------------------------------------------- trim GNOME bloat
   environment.gnome.excludePackages = with pkgs; [
