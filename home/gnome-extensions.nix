@@ -53,7 +53,7 @@ in
         just-perfection
         pomodoro-timer
         rounded-window-corners-reborn
-        tactile
+        tiling-shell
       ])
       ++ [ cpupower ]
       ++ lib.optionals isLaptop [ pkgs.gnomeExtensions.battery-time-2 ]

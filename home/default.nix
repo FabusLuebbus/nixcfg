@@ -140,5 +140,12 @@
       command = "nautilus";
       binding = "<Super>e";
     };
+    "org/gnome/shell/extensions/tilingshell" = {
+      span-window-all-tiles = [ "<Control><Super>space" ];
+      span-window-down = [ "<Control><Super>Down" ];
+      span-window-left = [ "<Control><Super>Left" ];
+      span-window-right = [ "<Control><Super>Right" ];
+      span-window-up = [ "<Control><Super>Up" ];
+    };
   };
 }
