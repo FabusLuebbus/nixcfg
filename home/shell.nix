@@ -26,6 +26,8 @@
     };
 
     shellAliases = {
+      ade = "gnome-session-quit --logout";
+
       ls = "eza --group-directories-first";
       ll = "eza -l --git --group-directories-first";
       la = "eza -la --git --group-directories-first";
@@ -46,6 +48,13 @@
       nrt = "sudo nixos-rebuild test --flake ~/nixcfg";
       # update all flake inputs (nixpkgs, home-manager)
       nup = "nix flake update --flake ~/nixcfg";
+
+      # edit default.nix with neovim
+      defedit = "nvim ~/nixcfg/home/default.nix";
+      # edit shell.nix with neovim
+      shelledit = "nvim ~/nixcfg/home/shell.nix";
+      # edit base.nix with neovim
+      baseedit = "nvim ~/nixcfg/modules/base.nix";
 
       ngen = "sudo nix-env --list-generations --profile /nix/var/nix/profiles/system";
       ngc = "sudo nix-collect-garbage --delete-older-than 14d";
