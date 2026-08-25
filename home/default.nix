@@ -17,6 +17,8 @@
 
   programs.home-manager.enable = true;
 
+  home.sessionVariables.UV_PYTHON_PREFERENCE = "only-managed";
+
   home.packages = with pkgs; [
     # modern CLI
     ripgrep
