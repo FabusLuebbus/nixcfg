@@ -1,9 +1,5 @@
-{ pkgs, ... }:
+{ pkgs, backupFsUuid, ... }:
 
-let
-  # Filesystem UUID of the backup partition itself (unencrypted ext4).
-  fsUuid = "b77d618a-8a32-4fa0-8753-2976ccb3b480";
-in
 {
   # Mountpoint for the backup drive. Exists even with the drive unplugged;
   # systemd only actually mounts something on top of it once the partition
@@ -14,7 +10,7 @@ in
 
   # --- Mount ----------------------------------------------------------------
   fileSystems."/mnt/backup" = {
-    device = "/dev/disk/by-uuid/${fsUuid}";
+    device = "/dev/disk/by-uuid/${backupFsUuid}";
     fsType = "ext4";
     options = [
       "nofail"
@@ -28,7 +24,7 @@ in
   # systemd's own dependency graph (Requires/After on the mount, below)
   # makes it wait for the mount to actually finish before the backup runs.
   services.udev.extraRules = ''
-    ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_UUID}=="${fsUuid}", TAG+="systemd", ENV{SYSTEMD_WANTS}+="backintime-backup.service"
+    ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_UUID}=="${backupFsUuid}", TAG+="systemd", ENV{SYSTEMD_WANTS}+="backintime-backup.service"
   '';
 
   # --- Backup -----------------------------------------------------------------

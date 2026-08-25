@@ -14,6 +14,11 @@
 
   networking.hostName = hostname;
 
+  # Filesystem UUID of this machine's backup partition (unencrypted ext4).
+  # Machine-specific — will differ on any other host, so it lives here
+  # rather than in modules/backup.nix.
+  _module.args.backupFsUuid = "b77d618a-8a32-4fa0-8753-2976ccb3b480";
+
   # UEFI bootloader. If your machine is legacy BIOS (unlikely on anything
   # modern), the installer-generated config will use GRUB instead — in that
   # case delete these three lines and keep what the installer produced.
