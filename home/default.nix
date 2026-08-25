@@ -142,6 +142,8 @@
       binding = "<Super>e";
     };
     "org/gnome/shell/extensions/tilingshell" = {
+      inner-gaps = 4;
+      outer-gaps = 0;
       span-window-all-tiles = [ "<Control><Super>space" ];
       span-window-down = [ "<Control><Super>Down" ];
       span-window-left = [ "<Control><Super>Left" ];
