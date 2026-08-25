@@ -162,6 +162,7 @@
       # an alias too, so `sudo nrs` and friends still resolve.
       sudo = "sudo ";
       neofetch = "fastfetch";
+      vim = "nvim";
 
       ls = "eza --group-directories-first";
       ll = "eza -l --git --group-directories-first";
