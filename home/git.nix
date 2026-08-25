@@ -17,6 +17,12 @@
       diff.algorithm = "histogram";
       rerere.enabled = true;
 
+      # delta's git integration below also claims pager.log, but delta
+      # expects diff hunks -- a plain `--graph` log (no -p) has none, and
+      # feeding it one leaves delta sitting at its `less` prompt looking
+      # stuck. Keep delta for diff/show/blame; log gets a plain pager.
+      pager.log = "less -FRX";
+
       # Commit signing — uncomment once your key is in place.
       # user.signingkey = "CHANGEME";
       # commit.gpgsign = true;
