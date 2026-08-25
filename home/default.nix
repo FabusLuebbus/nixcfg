@@ -45,7 +45,9 @@
     # util
     wl-clipboard
     openvpn
+    proton-vpn
     solaar
+    synology-drive-client
 
     # essential apps
     firefox
@@ -61,15 +63,14 @@
     # https://github.com/bitwarden/clients/issues/22030
     unstable.bitwarden-desktop
     libreoffice
-    synology-drive-client
-    proton-vpn
     thunderbird
     vlc
-    zoom
+    zathura
 
     # communication
     slack
     discord
+    zoom
 
     # media
     spotify
