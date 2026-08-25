@@ -72,6 +72,7 @@
     slack
     discord
     zoom
+    telegram-desktop
 
     # media
     spotify
