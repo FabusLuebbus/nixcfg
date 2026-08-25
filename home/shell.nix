@@ -233,7 +233,7 @@
       # search retries with that prefix stripped.
       haspkg() {
         local out
-        out=$(nix eval --raw ~/nixcfg#nixosConfigurations.framenix --apply '
+        out=$(nix eval --raw ~/nixcfg#nixosConfigurations."$(hostname)" --apply '
           c: let
             fmt = tag: map (p: tag + "\t" + (p.pname or p.name or "?"));
           in builtins.concatStringsSep "\n" (
@@ -286,7 +286,7 @@
       # run can't do anything hard to reverse; unlisted tool calls still
       # prompt for approval since this isn't -p mode.
       nixcfg-cleanup() {
-        local prompt="Read AGENTS.md in this repo (~/nixcfg) and follow every rule in it, especially the Git rules section. Run git status and git diff to see the current uncommitted changes across the working tree. Group these changes into well-defined, logically separate commits: one logical change per commit, never bundle unrelated module edits together, and write each commit message to explain WHY the change was made, not just what changed. If a single file mixes multiple unrelated logical changes, split it across commits by temporarily editing the file down to one change at a time, committing, then reapplying the rest -- rather than committing everything from that file at once. Before every commit, review 'git diff --staged' for anything that looks like a secret. Once everything is committed, run the appropriate dry-build to confirm nothing is broken: 'sudo nixos-rebuild dry-build --flake .#framenix' for system-level changes, or 'home-manager build --flake .#fabian' for home-manager-only changes. Do not push. Do not touch system.stateVersion or home.stateVersion. Do not run any destructive git command. If something is ambiguous, stop and ask me instead of guessing."
+        local prompt="Read AGENTS.md in this repo (~/nixcfg) and follow every rule in it, especially the Git rules section. Run git status and git diff to see the current uncommitted changes across the working tree. Group these changes into well-defined, logically separate commits: one logical change per commit, never bundle unrelated module edits together, and write each commit message to explain WHY the change was made, not just what changed. If a single file mixes multiple unrelated logical changes, split it across commits by temporarily editing the file down to one change at a time, committing, then reapplying the rest -- rather than committing everything from that file at once. Before every commit, review 'git diff --staged' for anything that looks like a secret. Once everything is committed, run the appropriate dry-build to confirm nothing is broken: 'nixos-rebuild dry-build --flake .#$(hostname)' for system-level changes (no sudo needed). Do not push. Do not touch system.stateVersion or home.stateVersion. Do not run any destructive git command. If something is ambiguous, stop and ask me instead of guessing."
         (
           cd ~/nixcfg && claude "$prompt" --model sonnet --effort medium \
             --allowedTools "Read(~/nixcfg/**) Edit(~/nixcfg/**) Bash(git status) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git show:*) Bash(git add:*) Bash(git restore --staged:*) Bash(git commit:*) Bash(git apply --cached:*) Bash(sudo nixos-rebuild dry-build:*) Bash(home-manager build:*) Bash(nix flake check:*)" \

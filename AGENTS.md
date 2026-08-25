@@ -1,9 +1,10 @@
 # AGENTS.md
 
 Instructions for any AI agent (or human) making changes in this repository.
-This is a personal NixOS + home-manager flake config for a single host
-(`framenix`, user `fabian`). Mistakes here can leave the machine unbootable
-or leak secrets into a public git history, so be conservative.
+This is a personal NixOS + home-manager flake config, user `fabian`, covering
+two hosts: `framenix` (laptop) and `desknix` (nvidia desktop). Mistakes here
+can leave a machine unbootable or leak secrets into a public git history, so
+be conservative.
 
 ## Git rules
 
@@ -47,9 +48,10 @@ or leak secrets into a public git history, so be conservative.
   a dry build to catch evaluation errors before telling the user the
   change works:
   ```
-  nixos-rebuild dry-build --flake ~/nixcfg#framenix
+  nixos-rebuild dry-build --flake ~/nixcfg#<hostname>
   ```
-  No `sudo` needed — `dry-build` only evaluates and builds the closure, it
+  Use whichever host you're actually on (`framenix` or `desknix` —
+  `hostname` on the local machine tells you). No `sudo` needed — `dry-build` only evaluates and builds the closure, it
   never touches `/etc` or the system profile, so plain user perms are
   enough. Only run `nixos-rebuild switch` (or `boot`) — which does need
   `sudo` — when the user explicitly asks to apply the change to the

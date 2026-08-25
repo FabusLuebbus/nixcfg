@@ -35,9 +35,8 @@ let
     };
   };
 
-  # framenix is currently the only host and it's a laptop; a future desktop
-  # host would have a different networking.hostName and fall out of this
-  # check automatically.
+  # desknix (the nvidia desktop) has a different networking.hostName and
+  # falls out of this check automatically.
   isLaptop = osConfig.networking.hostName == "framenix";
 in
 {
