@@ -18,8 +18,8 @@
   programs.home-manager.enable = true;
 
   home.sessionVariables = {
-    UV_PYTHON_PREFERENCE = "only-managed";
-    NIXPKGS_ALLOW_UNFREE = "1";
+    UV_PYTHON_PREFERENCE = "only-managed"; # uv uses only its own downloaded interpreters, never a python3 off PATH
+    NIXPKGS_ALLOW_UNFREE = "1"; # let nix-shell/nix run pull unfree packages without prompting
   };
 
   home.packages = with pkgs; [
