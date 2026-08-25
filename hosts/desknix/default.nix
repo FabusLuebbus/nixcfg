@@ -23,7 +23,7 @@
   # or:
   #   sudo blkid
   # then replace this value before the first `switch`.
-  _module.args.backupFsUuid = "00000000-0000-0000-0000-000000000000";
+  _module.args.backupFsUuid = "43b384ca-3b27-4a16-9882-0ff5359c7b69";
 
   # Desktop, not laptop — the backup drive stays plugged in permanently
   # rather than getting connected occasionally, so run on a daily timer
