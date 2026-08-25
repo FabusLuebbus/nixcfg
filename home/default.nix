@@ -9,6 +9,7 @@
     ./claude-code.nix
     ./backup.nix
     ./gnome-extensions.nix
+    ./nautilus.nix
   ];
 
   home.username = username;
