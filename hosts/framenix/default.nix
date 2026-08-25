@@ -19,6 +19,10 @@
   # rather than in modules/backup.nix.
   _module.args.backupFsUuid = "b77d618a-8a32-4fa0-8753-2976ccb3b480";
 
+  # The backup drive's other partition — unrelated to this system, never
+  # to be auto-mounted when the drive is plugged in.
+  myBackup.ignoreFsUuid = "896bc3ae-d5ed-418f-91ab-09a583c22af0";
+
   # UEFI bootloader. If your machine is legacy BIOS (unlikely on anything
   # modern), the installer-generated config will use GRUB instead — in that
   # case delete these three lines and keep what the installer produced.

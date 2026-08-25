@@ -1,6 +1,26 @@
-{ pkgs, config, backupFsUuid, ... }:
+{ pkgs, lib, config, backupFsUuid, ... }:
 
+let
+  cfg = config.myBackup;
+in
 {
+  # Optional, host-specific knobs. Plain `arg ? default` function
+  # parameters don't work for this: NixOS's module-arg machinery always
+  # resolves every declared parameter through `_module.args`, ignoring the
+  # Nix-level default, and errors if a host never set it. Real options with
+  # `mkOption`/`default` don't have that problem.
+  options.myBackup = {
+    ignoreFsUuid = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      description = ''
+        Filesystem UUID of a sibling partition on the backup drive that
+        should never be auto-mounted (e.g. an unrelated encrypted volume).
+      '';
+    };
+  };
+
+  config = {
   # Mountpoint for the backup drive. Exists even with the drive unplugged;
   # systemd only actually mounts something on top of it once the partition
   # with this UUID appears.
@@ -25,6 +45,12 @@
   # makes it wait for the mount to actually finish before the backup runs.
   services.udev.extraRules = ''
     ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_UUID}=="${backupFsUuid}", TAG+="systemd", ENV{SYSTEMD_WANTS}+="backintime-backup.service"
+  ''
+  # The backup drive's other partition (e.g. an encrypted volume unrelated
+  # to this system) — tell udisks2 to ignore it outright so nothing
+  # auto-mounts it just because the drive got plugged in.
+  + lib.optionalString (cfg.ignoreFsUuid != null) ''
+    ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_UUID}=="${cfg.ignoreFsUuid}", ENV{UDISKS_IGNORE}="1"
   '';
 
   # --- Backup -----------------------------------------------------------------
@@ -53,5 +79,6 @@
       ExecStart =
         "${pkgs.backintime-common}/bin/backintime --profile 1 --config /home/fabian/.config/backintime/config backup --quiet";
     };
+  };
   };
 }
