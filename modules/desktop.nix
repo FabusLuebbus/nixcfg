@@ -49,7 +49,6 @@
   environment.systemPackages = with pkgs; [
     gnome-tweaks
     dconf-editor
-    gnomeExtensions.appindicator
   ];
 
   # Portals — needed for Flatpak and screen sharing to behave.
