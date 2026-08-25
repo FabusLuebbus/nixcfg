@@ -70,4 +70,12 @@
   # Portals — needed for Flatpak and screen sharing to behave.
   xdg.portal.enable = true;
   services.flatpak.enable = true;
+
+  # Tells nixpkgs' Electron wrappers (Bitwarden, VS Code, Slack, Discord, ...)
+  # to run native Wayland with compositor-drawn window decorations
+  # (--ozone-platform-hint=auto --enable-features=WaylandWindowDecorations)
+  # instead of Chromium's own client-side frame. Without it those apps draw
+  # their own title bar/border, which doesn't follow the GNOME dark theme —
+  # only compositor-drawn (server-side) decorations do.
+  environment.sessionVariables.NIXOS_OZONE_WL = "1";
 }
