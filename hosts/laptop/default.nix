@@ -9,6 +9,7 @@
     ../../modules/base.nix
     ../../modules/desktop.nix
     ../../modules/dev.nix
+    ../../modules/backup.nix
   ];
 
   networking.hostName = hostname;

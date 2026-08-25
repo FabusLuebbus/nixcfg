@@ -7,6 +7,7 @@
     ./ssh.nix
     ./terminal.nix
     ./claude-code.nix
+    ./backup.nix
     ./gnome-extensions.nix
   ];
 
@@ -66,7 +67,6 @@
     # https://github.com/bitwarden/clients/issues/22030
     unstable.bitwarden-desktop
     libreoffice
-    backintime
     synology-drive-client
     proton-vpn
     thunderbird

@@ -30,6 +30,8 @@ let
     "target"
     ".npm"
     ".cargo/registry"
+    # mountpoint for a remote machine, not local data — never worth backing up
+    "${home}/landrive"
   ];
 
   excludeLines = lib.imap1
