@@ -23,7 +23,7 @@
   };
 
   home.packages = with pkgs; [
-    # modern CLI
+    # CLI
     ripgrep
     fd
     bat
@@ -39,16 +39,27 @@
     unzip
     p7zip
 
-    # apps
+    # essential apps
     firefox
     vscode
-    slack
-    spotify
-    discord
     bitwarden-desktop
     libreoffice
+    backintime
+    synology-drive-client
+    proton-vpn
+    thunderbird
+    vlc
+    zoom
 
-    #desktop env
+    # communication
+    slack
+    discord
+
+    # media
+    spotify
+    handbrake
+
+    # desktop env
     gnome-extension-manager
   ];
 
