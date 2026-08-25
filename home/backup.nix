@@ -54,6 +54,25 @@ let
     # Scheduling is driven by the hotplug-triggered systemd service in
     # modules/backup.nix, not BackInTime's own crontab writer.
     "profile1.schedule.mode=0"
+
+    # Retention: disk-size-agnostic "fill it up, evict oldest" policy.
+    # BackInTime removes the oldest snapshot(s) after each backup until at
+    # least this much free space is available again — an absolute margin,
+    # not a fraction of disk size, so it needs no per-host tuning.
+    #
+    # Eviction only runs *after* a backup completes successfully, not
+    # before it starts, so this margin has to absorb one full day's worth
+    # of new/changed data, not just the long-run average (which is much
+    # smaller thanks to hardlink-based incrementals). Too small a margin
+    # risks an out-of-space rsync failure on a heavy day — and a failed
+    # backup skips eviction too, so it won't self-heal on the next run.
+    "profile1.snapshots.min_free_space.enabled=true"
+    "profile1.snapshots.min_free_space.value=20"
+    "profile1.snapshots.min_free_space.unit=20" # 20 = GB (SizeUnit.GIB)
+
+    # Age-based removal is unset elsewhere; default (10 years) never fires
+    # in practice, so min_free_space above is the only real retention knob.
+    "profile1.snapshots.remove_old_snapshots.enabled=false"
   ];
 in
 {
