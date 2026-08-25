@@ -44,8 +44,10 @@ let
     "profile1.name=Main profile"
     "profile1.snapshots.mode=local"
     "profile1.snapshots.path=${backupRoot}"
+    "profile1.snapshots.include.size=1"
     "profile1.snapshots.include.1.type=0"
     "profile1.snapshots.include.1.value=${home}"
+    "profile1.snapshots.exclude.size=${toString (builtins.length excludes)}"
   ]
   ++ excludeLines
   ++ [
