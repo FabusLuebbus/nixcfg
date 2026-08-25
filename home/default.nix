@@ -19,6 +19,18 @@
 
   programs.home-manager.enable = true;
 
+  # GNOME dropped shipping an actual "Adwaita-dark" theme years ago (dark mode
+  # is now the gtk-application-prefer-dark-theme boolean instead), so legacy
+  # GTK3 widgets that still look up a literal dark theme *name* (e.g.
+  # Electron's native menu bar) need a real theme package to point at.
+  gtk = {
+    enable = true;
+    theme = {
+      name = "adw-gtk3-dark";
+      package = pkgs.adw-gtk3;
+    };
+  };
+
   home.sessionVariables = {
     UV_PYTHON_PREFERENCE = "only-managed"; # uv uses only its own downloaded interpreters, never a python3 off PATH
     NIXPKGS_ALLOW_UNFREE = "1"; # let nix-shell/nix run pull unfree packages without prompting
@@ -120,6 +132,12 @@
   dconf.settings = {
     "org/gnome/desktop/interface" = {
       color-scheme = "prefer-dark";
+      # color-scheme alone only tells theme-aware apps (libadwaita, Bitwarden's
+      # own content) to pick their dark variant. Server-side window
+      # decorations that Wayland/libdecor draws for apps without CSD (e.g.
+      # Electron's title bar/border) come from the legacy gtk-theme key
+      # instead — without this it stays light even with color-scheme set.
+      gtk-theme = "adw-gtk3-dark";
     };
     "org/gnome/desktop/peripherals/touchpad" = {
       natural-scroll = true;
