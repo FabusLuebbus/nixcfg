@@ -126,6 +126,19 @@
     Hidden=true
   '';
 
+  # GNOME's Mutter doesn't implement the Wayland server-side-decoration
+  # protocol, so on native Wayland Chromium/Electron always draws its own
+  # window frame — and that self-drawn frame doesn't follow dark mode.
+  # Forcing X11/XWayland instead gets a properly-themed title bar from
+  # GNOME's own (correctly dark-mode-aware) window decorations.
+  xdg.desktopEntries.bitwarden = {
+    name = "Bitwarden";
+    exec = "env GDK_BACKEND=x11 bitwarden --ozone-platform=x11 %U";
+    icon = "bitwarden";
+    categories = [ "Utility" ];
+    mimeType = [ "x-scheme-handler/bitwarden" ];
+  };
+
   # GNOME settings, declared. Fill in more once you know what you want —
   # `dconf watch /` in a terminal shows you the key for anything you change
   # in the GUI, which you can then paste in here.
