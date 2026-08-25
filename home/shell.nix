@@ -26,7 +26,7 @@
     };
 
     shellAliases = {
-      ade = "gnome-session-quit --logout";
+      ade = "gnome-session-quit --logout --no-prompt";
 
       ls = "eza --group-directories-first";
       ll = "eza -l --git --group-directories-first";
