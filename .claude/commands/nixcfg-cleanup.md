@@ -1,3 +1,8 @@
+---
+model: haiku
+effort: low
+---
+
 Read AGENTS.md in this repo (~/nixcfg) and follow every rule in it, especially the Git rules section. Run git status and git diff to see the current uncommitted changes across the working tree. Group these changes into well-defined, logically separate commits: one logical change per commit, never bundle unrelated module edits together, and write each commit message to explain WHY the change was made, not just what changed. If a single file mixes multiple unrelated logical changes, split it across commits by temporarily editing the file down to one change at a time, committing, then reapplying the rest -- rather than committing everything from that file at once. Before every commit, review 'git diff --staged' for anything that looks like a secret.
 
 Once everything is committed, run the dry-build to confirm nothing is broken:

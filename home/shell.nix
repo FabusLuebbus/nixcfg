@@ -293,6 +293,17 @@
             --disallowedTools "Bash(git push:*) Bash(git reset:*) Bash(git checkout:*) Bash(git clean:*) Bash(git rebase:*) Bash(git commit --amend:*) Bash(sudo nixos-rebuild switch:*) Bash(sudo nixos-rebuild boot:*) Bash(rm -rf:*)"
         )
       }
+
+      # plain interactive claude session in ~/nixcfg, same tool
+      # restrictions as nixcfg-cleanup but no initial prompt -- for
+      # freeform work instead of the scripted commit-splitting flow.
+      nixclaude() {
+        (
+          cd ~/nixcfg && claude --model sonnet --effort medium \
+            --allowedTools "Read(~/nixcfg/**) Edit(~/nixcfg/**) Bash(git status) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git show:*) Bash(git add:*) Bash(git restore --staged:*) Bash(git commit:*) Bash(git apply --cached:*) Bash(sudo nixos-rebuild dry-build:*) Bash(home-manager build:*) Bash(nix flake check:*)" \
+            --disallowedTools "Bash(git push:*) Bash(git reset:*) Bash(git checkout:*) Bash(git clean:*) Bash(git rebase:*) Bash(git commit --amend:*) Bash(sudo nixos-rebuild switch:*) Bash(sudo nixos-rebuild boot:*) Bash(rm -rf:*)"
+        )
+      }
     '';
   };
 
