@@ -73,6 +73,21 @@
       # nicer word-jumping on the German keyboard
       bindkey "^[[1;5C" forward-word
       bindkey "^[[1;5D" backward-word
+
+      # non-interactive claude run that splits uncommitted nixcfg changes
+      # into well-defined commits per AGENTS.md. Edit/Read are scoped to
+      # ~/nixcfg and the Bash allowlist excludes push/reset/checkout/clean/
+      # rebase/amend/switch/boot so a bad run can't do anything hard to
+      # reverse -- unlisted tool calls just fail closed, since -p mode has
+      # no prompt to fall back on.
+      nixcfg-cleanup() {
+        (
+          cd ~/nixcfg && claude -p \
+            --allowedTools "Read(~/nixcfg/**) Edit(~/nixcfg/**) Bash(git status) Bash(git status:*) Bash(git diff:*) Bash(git log:*) Bash(git show:*) Bash(git add:*) Bash(git restore --staged:*) Bash(git commit:*) Bash(git apply --cached:*) Bash(sudo nixos-rebuild dry-build:*) Bash(home-manager build:*) Bash(nix flake check:*)" \
+            --disallowedTools "Bash(git push:*) Bash(git reset:*) Bash(git checkout:*) Bash(git clean:*) Bash(git rebase:*) Bash(git commit --amend:*) Bash(sudo nixos-rebuild switch:*) Bash(sudo nixos-rebuild boot:*) Bash(rm -rf:*)" \
+            "Read AGENTS.md in this repo (~/nixcfg) and follow every rule in it, especially the Git rules section. Run git status and git diff to see the current uncommitted changes across the working tree. Group these changes into well-defined, logically separate commits: one logical change per commit, never bundle unrelated module edits together, and write each commit message to explain WHY the change was made, not just what changed. If a single file mixes multiple unrelated logical changes, split it across commits by temporarily editing the file down to one change at a time, committing, then reapplying the rest -- rather than committing everything from that file at once. Before every commit, review 'git diff --staged' for anything that looks like a secret. Once everything is committed, run the appropriate dry-build to confirm nothing is broken: 'sudo nixos-rebuild dry-build --flake .#framenix' for system-level changes, or 'home-manager build --flake .#fabian' for home-manager-only changes. Do not push. Do not touch system.stateVersion or home.stateVersion. Do not run any destructive git command. If something is ambiguous, or you're blocked by a missing permission, stop and explain what happened instead of guessing."
+        )
+      }
     '';
   };
 
