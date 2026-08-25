@@ -1,19 +1,149 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
     autosuggestion.enable = true;
-    syntaxHighlighting.enable = true;
+
+    # ---- syntax highlighting: Catppuccin Mocha ----
+    # Ported from the old machine's hand-maintained
+    # custom/themes/catppuccin_mocha-zsh-syntax-highlighting.zsh. Set as an
+    # option rather than a sourced file so it lands in ZSH_HIGHLIGHT_STYLES
+    # before the highlighter is loaded, which is what that file did by hand.
+    syntaxHighlighting = {
+      enable = true;
+      # home-manager always prepends "main" itself, so only the extra goes here.
+      highlighters = [ "cursor" ];
+      styles =
+        let
+          text = "fg=#cdd6f4";
+          green = "fg=#a6e3a1";
+          peach = "fg=#fab387";
+          mauve = "fg=#cba6f7";
+          red = "fg=#f38ba8";
+          yellow = "fg=#f9e2af";
+          maroon = "fg=#eba0ac";
+        in
+        {
+          default = text;
+          unknown-token = maroon;
+
+          # commands and things that resolve to one
+          reserved-word = green;
+          alias = green;
+          suffix-alias = green;
+          global-alias = green;
+          function = green;
+          command = green;
+          builtin = green;
+          hashed-command = green;
+          precommand = "${green},italic";
+
+          commandseparator = red;
+          autodirectory = "${peach},italic";
+
+          path = "${text},underline";
+          path_prefix = "${text},underline";
+          path_pathseparator = "${red},underline";
+          path_prefix_pathseparator = "${red},underline";
+
+          globbing = text;
+          history-expansion = mauve;
+
+          command-substitution = text;
+          command-substitution-delimiter = text;
+          command-substitution-quoted = yellow;
+          process-substitution = text;
+          process-substitution-delimiter = text;
+
+          single-hyphen-option = peach;
+          double-hyphen-option = peach;
+
+          back-quoted-argument = mauve;
+          back-quoted-argument-delimiter = red;
+          back-quoted-argument-unclosed = maroon;
+          back-double-quoted-argument = red;
+          back-dollar-quoted-argument = red;
+
+          single-quoted-argument = yellow;
+          single-quoted-argument-unclosed = maroon;
+          double-quoted-argument = yellow;
+          double-quoted-argument-unclosed = maroon;
+          rc-quote = yellow;
+
+          dollar-quoted-argument = text;
+          dollar-quoted-argument-unclosed = maroon;
+          dollar-double-quoted-argument = text;
+
+          assign = text;
+          redirection = text;
+          named-fd = text;
+          numeric-fd = text;
+          arg0 = text;
+          cursor = text;
+          comment = "fg=#585b70";
+        };
+    };
+
+    # Up/Down filter history by what you have already typed, instead of
+    # cycling it blindly. Both the normal-mode (^[[) and application-mode
+    # (^[O) arrow sequences are bound, as the old .zshrc did.
+    # atuin is handed --disable-up-arrow below so it does not steal these back.
+    historySubstringSearch = {
+      enable = true;
+      searchUpKey = [ "^[[A" "^[OA" ];
+      searchDownKey = [ "^[[B" "^[OB" ];
+    };
+
+    # Nags you when you type out a command you already have an alias for.
+    plugins = [
+      {
+        name = "you-should-use";
+        src = "${pkgs.zsh-you-should-use}/share/zsh/plugins/you-should-use";
+      }
+    ];
 
     # oh-my-zsh for its plugin ecosystem and the agnoster prompt theme.
     oh-my-zsh = {
       enable = true;
       theme = "agnoster";
       plugins = [
-        # plugin names go here, e.g. "git" "sudo" "fzf"
+        "git" # git aliases + prompt helpers
+        "sudo" # double-tap Esc to prefix the line with sudo
+        "docker" # completions
+        "docker-compose" # completions
+        "dirhistory" # Alt+Arrow through directory history
+        "colorize" # `ccat` — syntax-coloured cat
+        "copypath" # copy the cwd (or a path) to the clipboard
+        "copyfile" # copy a file's contents to the clipboard
+        "copybuffer" # Ctrl+O copies the current command line
+        "git-auto-fetch" # background `git fetch` inside repos
+        "timer" # print how long the last command took
+        "virtualenv" # show the active venv in the prompt
+        # "pyenv" dropped: Python is uv-only here (see AGENTS.md), and it was
+        # already dead config on the old machine — pyenv was never installed.
       ];
+
+      # Settings that oh-my-zsh reads before it sources itself.
+      extraConfig = ''
+        HYPHEN_INSENSITIVE="true"
+        DISABLE_AUTO_TITLE="true"
+        COMPLETION_WAITING_DOTS="true"
+        HIST_STAMPS="mm/dd/yyyy"
+        # The store is read-only, so omz can never update itself in place;
+        # it moves with the flake instead. Asking on every shell start is noise.
+        zstyle ':omz:update' mode disabled
+      '';
+    };
+
+    sessionVariables = {
+      EDITOR = "nvim";
+      # The old config said `batcat` — that is Debian's renamed binary.
+      # On NixOS the package and the binary are both just `bat`.
+      PAGER = "bat";
+      BAT_PAGER = "less -RF";
+      MANPAGER = "bat --paging=always";
     };
 
     history = {
@@ -27,6 +157,11 @@
 
     shellAliases = {
       ade = "gnome-session-quit --logout --no-prompt";
+
+      # Trailing space is load-bearing: it makes zsh expand the *next* word as
+      # an alias too, so `sudo nrs` and friends still resolve.
+      sudo = "sudo ";
+      neofetch = "fastfetch";
 
       ls = "eza --group-directories-first";
       ll = "eza -l --git --group-directories-first";
@@ -61,6 +196,15 @@
     };
 
     initContent = ''
+      # Agnoster shows user@host by default. Redefining the segment function
+      # here — after oh-my-zsh has loaded the theme — drops the hostname and
+      # keeps only the user. Carried over verbatim from the old .zshrc.
+      prompt_context() {
+        if [[ "$USER" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
+          prompt_segment black default "%(!.%{%F{yellow}%}.)$USER"
+        fi
+      }
+
       # uv-managed pythons live here
       export PATH="$HOME/.local/bin:$PATH"
 
@@ -109,6 +253,10 @@
   programs.atuin = {
     enable = true;
     enableZshIntegration = true;
+    # atuin's init runs last in .zshrc and would otherwise rebind Up,
+    # clobbering the history-substring-search keys above. Confine it to
+    # Ctrl+R: deliberate search stays atuin's, arrows stay substring search.
+    flags = [ "--disable-up-arrow" ];
     settings = {
       auto_sync = false; # flip to true once you have an account
       update_check = false;
