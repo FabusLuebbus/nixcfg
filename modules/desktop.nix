@@ -49,6 +49,10 @@
   environment.systemPackages = with pkgs; [
     gnome-tweaks
     dconf-editor
+    # gnome-menus: not pulled in by a NixOS GNOME install by default, but
+    # shell extensions (e.g. Astra Monitor) that use GMenu to enumerate app
+    # categories need its GMenu-3.0 typelib on GI_TYPELIB_PATH.
+    gnome-menus
   ];
 
   # Portals — needed for Flatpak and screen sharing to behave.
