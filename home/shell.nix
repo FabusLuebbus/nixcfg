@@ -218,6 +218,22 @@
       # run a package once without installing it
       nr() { nix run --impure "nixpkgs#$1" -- "''${@:2}"; }
 
+      # is <pkg> part of the config as written? Evaluates the flake rather
+      # than grepping the .nix files, so it also sees packages pulled in
+      # implicitly by a programs.*.enable, and sees them before a switch has
+      # happened. Matches package names, not binaries -- wl-clipboard, not
+      # wl-copy. No argument lists everything; exits non-zero when nothing
+      # matches, so `haspkg foo && ...` works.
+      haspkg() {
+        nix eval --raw ~/nixcfg#nixosConfigurations.framenix --apply '
+          c: let
+            fmt = tag: map (p: tag + "\t" + (p.pname or p.name or "?"));
+          in builtins.concatStringsSep "\n" (
+            fmt "system" c.config.environment.systemPackages
+            ++ fmt "home" c.config.home-manager.users.fabian.home.packages
+          )' 2>/dev/null | sort -u | grep -i --color=auto -- "''${1:-}"
+      }
+
       # nicer word-jumping on the German keyboard
       bindkey "^[[1;5C" forward-word
       bindkey "^[[1;5D" backward-word
