@@ -1,4 +1,4 @@
-{ pkgs, username, ... }:
+{ pkgs, lib, username, ... }:
 
 {
   imports = [
@@ -149,6 +149,150 @@
       span-window-left = [ "<Control><Super>Left" ];
       span-window-right = [ "<Control><Super>Right" ];
       span-window-up = [ "<Control><Super>Up" ];
+      edge-tiling-mode = "default";
+      enable-window-border = false;
+      show-indicator = false;
+      window-use-custom-border-color = false;
+      # The custom 4-tile layout definition (available to pick per-monitor).
+      layouts-json = builtins.toJSON [
+        {
+          id = "6183749";
+          tiles = [
+            {
+              x = 0;
+              y = 0;
+              width = 0.5;
+              height = 0.5;
+              groups = [
+                1
+                2
+              ];
+            }
+            {
+              x = 0.5;
+              y = 0;
+              width = 0.49999999999999994;
+              height = 0.5;
+              groups = [
+                3
+                1
+              ];
+            }
+            {
+              x = 0;
+              y = 0.5;
+              width = 0.5;
+              height = 0.5;
+              groups = [
+                2
+                1
+              ];
+            }
+            {
+              x = 0.5;
+              y = 0.5;
+              width = 0.49999999999999994;
+              height = 0.5;
+              groups = [
+                3
+                1
+              ];
+            }
+          ];
+        }
+      ];
+      # selected-layouts is deliberately NOT pinned here: it's a per-monitor
+      # assignment ([['6183749'], ['6183749']] on framenix's single monitor),
+      # not a portable setting. desknix has more monitors, so a fixed-length
+      # array here would misassign layouts or leave extra monitors on
+      # tilingshell's default. Pick the layout per-monitor in the UI instead.
+      # tilingshell's own record of the keybindings/mutter settings it
+      # overrides on startup; harmless since we don't set those keys
+      # ourselves anywhere else.
+      overridden-settings = builtins.toJSON {
+        "org.gnome.mutter.keybindings" = {
+          toggle-tiled-right = "['<Super>Right']";
+          toggle-tiled-left = "['<Super>Left']";
+        };
+        "org.gnome.desktop.wm.keybindings" = {
+          maximize = "['<Super>Up']";
+          unmaximize = "['<Super>Down', '<Alt>F5']";
+        };
+        "org.gnome.mutter" = {
+          edge-tiling = "true";
+        };
+      };
+    };
+    # ArcMenu's search box corner radius toggle+value; a (bool, int) gvariant tuple.
+    "org/gnome/shell/extensions/arcmenu" = {
+      search-entry-border-radius = lib.hm.gvariant.mkTuple [
+        true
+        25
+      ];
+    };
+    "org/gnome/shell/extensions/caffeine" = {
+      indicator-position-max = 2;
+    };
+    # Only the layout/ordering prefs; skip the "profiles" blob (an internal
+    # snapshot, not user-editable) and storage-main (a disk device name,
+    # specific to this laptop's internal NVMe).
+    "org/gnome/shell/extensions/astra-monitor" = {
+      gpu-indicators-order = [
+        "icon"
+        "activity bar"
+        "activity graph"
+        "activity percentage"
+        "memory bar"
+        "memory graph"
+        "memory percentage"
+        "memory value"
+      ];
+      memory-indicators-order = [
+        "icon"
+        "bar"
+        "graph"
+        "percentage"
+        "value"
+        "free"
+      ];
+      monitors-order = [
+        "processor"
+        "gpu"
+        "memory"
+        "storage"
+        "network"
+        "sensors"
+      ];
+      network-indicators-order = [
+        "icon"
+        "IO bar"
+        "IO graph"
+        "IO speed"
+      ];
+      processor-indicators-order = [
+        "icon"
+        "bar"
+        "graph"
+        "percentage"
+        "frequency"
+      ];
+      sensors-indicators-order = [
+        "icon"
+        "value"
+      ];
+      storage-indicators-order = [
+        "icon"
+        "bar"
+        "percentage"
+        "value"
+        "free"
+        "IO bar"
+        "IO graph"
+        "IO speed"
+      ];
+      storage-header-graph = true;
+      storage-header-io-bars = false;
+      storage-header-tooltip-value = false;
     };
   };
 }
