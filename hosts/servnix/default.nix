@@ -10,6 +10,7 @@
     ../../modules/base.nix
     ../../modules/server.nix
     ../../modules/hermes-agent.nix
+    ../../modules/home-assistant.nix
   ];
 
   networking.hostName = hostname;
