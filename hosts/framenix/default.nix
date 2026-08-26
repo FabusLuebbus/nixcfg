@@ -31,6 +31,14 @@
   # Newer kernel — nice for recent laptop hardware.
   # boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  # The mt7921e wifi driver (MediaTek MT7922, this machine's card) has a
+  # known upstream suspend/hibernate hang bug on Framework 13 AMD laptops:
+  # the kernel freezes right after "hibernation entry" and the machine
+  # never powers off, requiring a hard reset. Disabling ASPM on the card
+  # is the standard workaround. Remove if a kernel/driver update fixes the
+  # underlying bug upstream.
+  boot.extraModprobeConfig = "options mt7921e disable_aspm=1";
+
   # DO NOT CHANGE THIS after install. It is not a version number to keep
   # current — it pins stateful-data compatibility to the release you first
   # installed. Changing it can silently break databases and service state.
