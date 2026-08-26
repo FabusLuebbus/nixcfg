@@ -3,12 +3,15 @@
 {
   # Deliberately not importing ./default.nix — that one pulls in GNOME
   # theming, a browser, Bitwarden, Slack, Spotify, and a dozen other
-  # desktop apps that make no sense on a headless box. Server hosts get
-  # the CLI-only subset instead.
+  # desktop apps that make no sense on a headless box. Everything else —
+  # the full zsh/oh-my-zsh/atuin/fzf setup, git+delta+lazygit, tmux with
+  # session persistence, Claude Code — carries over unchanged, so the CLI
+  # experience here is identical to the desktop hosts.
   imports = [
     ./shell.nix
     ./git.nix
     ./ssh.nix
+    ./tmux.nix
     ./claude-code.nix
   ];
 
@@ -41,36 +44,5 @@
     unzip
     p7zip
     fastfetch
-
-    mosh # survives SSH sessions across network drops better than raw ssh
   ];
-
-  # tmux matters more here than usual: keep long-running things (a big
-  # rsync, a container build) alive across a dropped SSH connection.
-  #   ssh servnix -t "tmux new -A -s main"
-  programs.tmux = {
-    enable = true;
-    prefix = "C-a"; # C-b is awkward; C-a is the common swap
-    keyMode = "vi";
-    mouse = true;
-    baseIndex = 1;
-    escapeTime = 10;
-    historyLimit = 50000;
-    terminal = "tmux-256color";
-
-    plugins = with pkgs.tmuxPlugins; [ sensible yank ];
-
-    extraConfig = ''
-      bind | split-window -h -c "#{pane_current_path}"
-      bind - split-window -v -c "#{pane_current_path}"
-
-      bind h select-pane -L
-      bind j select-pane -D
-      bind k select-pane -U
-      bind l select-pane -R
-
-      set -g renumber-windows on
-      set -g status-position top
-    '';
-  };
 }

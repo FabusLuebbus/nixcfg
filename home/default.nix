@@ -5,6 +5,7 @@
     ./shell.nix
     ./git.nix
     ./ssh.nix
+    ./tmux.nix
     ./terminal.nix
     ./claude-code.nix
     ./backup.nix
