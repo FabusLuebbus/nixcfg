@@ -30,6 +30,37 @@
   #   curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
   #   hermes model               # point it at local ollama, or a cloud provider
   #   hermes config set <...>    # set the terminal/execution backend to `docker`
+  #
+  # ---- confining it to one part of the server ----------------------------
+  # Two independent layers, per Hermes's own security docs, so a mistake in
+  # one doesn't undo the other:
+  #
+  #  1. The docker terminal backend itself: the sandbox container only ever
+  #     gets the bind mount(s) listed in docker_volumes — nothing else on
+  #     this machine is even present in its filesystem namespace, so
+  #     there's nothing to escape TO. Set this by hand in
+  #     ~/.hermes/config.yaml (that file mixes config with API keys/session
+  #     state per Hermes's docs, so — same reasoning as home/ssh.nix not
+  #     committing private keys — Nix never writes it):
+  #
+  #       terminal:
+  #         backend: docker
+  #         docker_image: "nikolaik/python-nodejs:python3.11-nodejs20"
+  #         docker_volumes:
+  #           - "/srv/hermes-agent/workspace:/workspace"   # the ONLY thing it can touch
+  #         docker_run_as_host_user: true   # files land owned by fabian, not root
+  #         docker_network: true            # needed for web browsing/search tools
+  #         container_cpu: 2
+  #         container_memory: 4096          # MB; drop to ~1024 if you skip browser tools
+  #         container_persistent: true
+  #
+  #       security:
+  #         allow_private_urls: false   # keep the rest of your LAN off-limits to web tools
+  #
+  #  2. HERMES_WRITE_SAFE_ROOT (set on the systemd unit below, not a
+  #     secret so Nix can own it): hard-blocks write_file/patch tool calls
+  #     outside these prefixes regardless of terminal backend — belt and
+  #     braces in case the backend ever gets switched back to `local`.
   # =========================================================================
 
   # The model backend. Hermes Agent explicitly supports pointing at a local
@@ -83,6 +114,15 @@
   # the same Docker daemon Hermes Agent's `docker` terminal backend talks
   # to; fabian is already in the `docker` group via modules/base.nix.
 
+  # The one directory the agent's sandbox is allowed to touch — matches
+  # the docker_volumes entry documented above. Separate from ~/.hermes
+  # (the daemon's own config/memory/skills state), which lives on the
+  # host and is never bind-mounted into the sandbox container at all.
+  systemd.tmpfiles.rules = [
+    "d /srv/hermes-agent 0750 fabian fabian -"
+    "d /srv/hermes-agent/workspace 0750 fabian fabian -"
+  ];
+
   # Left disabled (not in any target's Wants) until you've actually run
   # the installer above and it's confirmed to exist at this path — a
   # NixOS-managed unit pointing at a binary that isn't there yet would
@@ -92,6 +132,11 @@
     description = "Hermes Agent gateway (Nous Research)";
     after = [ "network-online.target" "docker.service" "ollama.service" ];
     wants = [ "network-online.target" ];
+    environment = {
+      # Second, independent confinement layer — see the big comment block
+      # above. Not a secret, so this is safe to declare here.
+      HERMES_WRITE_SAFE_ROOT = "/srv/hermes-agent/workspace:/home/fabian/.hermes";
+    };
     serviceConfig = {
       Type = "simple";
       User = "fabian";
