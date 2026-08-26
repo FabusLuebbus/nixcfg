@@ -2,11 +2,16 @@
 
 For a fresh install using the NixOS 26.05 ISO.
 
-This flake already defines two hosts: `framenix` (laptop) and `desknix`
-(nvidia desktop, see `modules/nvidia.nix`). If you're bringing up one of
-those two, skip straight to step 2. For a third, new host: add a
-`hosts/<hostname>/` directory modeled on one of the existing ones, then add
-`nixosConfigurations.<hostname> = mkHost "<hostname>";` in `flake.nix`.
+This flake already defines three hosts: `framenix` (laptop), `desknix`
+(nvidia desktop, see `modules/nvidia.nix`), and `servnix` (old laptop
+turned headless file/media server, see `modules/server.nix`). If you're
+bringing up one of those, skip straight to step 2 (for `servnix`, also see
+the data-drive note in `hosts/servnix/default.nix` before step 5). For a
+new host beyond these: add a `hosts/<hostname>/` directory modeled on one
+of the existing ones, then add
+`nixosConfigurations.<hostname> = mkHost "<hostname>" ./home;` in
+`flake.nix` (swap `./home` for `./home/server.nix` for a headless box, or
+model a new slim home-manager profile on that file).
 
 1. **Install NixOS** normally from the ISO (partition, `nixos-install`, reboot).
 
@@ -28,7 +33,7 @@ those two, skip straight to step 2. For a third, new host: add a
    networking/DNS problem, not a missing cert.
 
 3. **Copy the generated hardware config**, using this machine's hostname
-   (`framenix` or `desknix`):
+   (`framenix`, `desknix`, or `servnix`):
    ```
    cp /etc/nixos/hardware-configuration.nix ~/nixcfg/hosts/<hostname>/hardware-configuration.nix
    ```

@@ -18,10 +18,13 @@
       system = "x86_64-linux";
       username = "fabian";
 
-      # One nixosSystem per host, all sharing the same user/home-manager wiring.
-      # Add a new host by dropping a `hosts/<hostname>/` directory (modeled on
-      # an existing one) and adding one line below.
-      mkHost = hostname: nixpkgs.lib.nixosSystem {
+      # One nixosSystem per host, all sharing the same NixOS/home-manager
+      # wiring. Add a new host by dropping a `hosts/<hostname>/` directory
+      # (modeled on an existing one) and adding one line below.
+      # `homeModule` picks which home-manager config the host's user gets —
+      # desktops use the full GUI-heavy ./home, headless boxes pass a
+      # slimmer one instead (see ./home/server.nix).
+      mkHost = hostname: homeModule: nixpkgs.lib.nixosSystem {
         inherit system;
 
         # Makes `inputs`, `username` and `hostname` available inside every module.
@@ -36,13 +39,14 @@
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "hm-bak";
             home-manager.extraSpecialArgs = { inherit inputs username; };
-            home-manager.users.${username} = import ./home;
+            home-manager.users.${username} = import homeModule;
           }
         ];
       };
     in
     {
-      nixosConfigurations.framenix = mkHost "framenix"; # laptop
-      nixosConfigurations.desknix = mkHost "desknix"; # nvidia desktop
+      nixosConfigurations.framenix = mkHost "framenix" ./home; # laptop
+      nixosConfigurations.desknix = mkHost "desknix" ./home; # nvidia desktop
+      nixosConfigurations.servnix = mkHost "servnix" ./home/server.nix; # old laptop turned file/media server
     };
 }
