@@ -9,6 +9,7 @@
 
     ../../modules/base.nix
     ../../modules/server.nix
+    ../../modules/hermes-agent.nix
   ];
 
   networking.hostName = hostname;
