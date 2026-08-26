@@ -61,6 +61,54 @@
   #     secret so Nix can own it): hard-blocks write_file/patch tool calls
   #     outside these prefixes regardless of terminal backend — belt and
   #     braces in case the backend ever gets switched back to `local`.
+  #
+  # ---- reaching Home Assistant and SABnzbd on this same box --------------
+  # These do NOT go through the generic web tool, so they don't need
+  # security.allow_private_urls flipped on (which would open the whole
+  # RFC1918/loopback/link-local range to the model-driven web tools) — and
+  # they don't touch the file/shell sandbox above at all. Both run as
+  # purpose-built tool integrations instead, each scoped to exactly one
+  # service:
+  #
+  #  - Home Assistant: Hermes ships a FIRST-PARTY toolset for this
+  #    (ha_list_entities / ha_get_state / ha_list_services / ha_call_service),
+  #    no MCP server needed. It activates automatically once HASS_TOKEN is
+  #    set. Generate a Long-Lived Access Token from your HA user profile
+  #    (Profile → Long-Lived Access Tokens → Create Token — NOT a regular
+  #    session token, those 401), then add to ~/.hermes/.env (a secrets
+  #    file; same reasoning as ~/.hermes/config.yaml, Nix never writes it):
+  #
+  #      HASS_TOKEN=<the long-lived token>
+  #
+  #    (HASS_URL defaults to http://homeassistant.local:8123, which
+  #    resolves fine here via the Avahi enabled in modules/home-assistant.nix
+  #    — or set HASS_URL=http://127.0.0.1:8123 explicitly, also fine since
+  #    both run on servnix.) Worth knowing: this toolset has no granular
+  #    entity/domain scoping of its own — the token grants full HA API
+  #    access. Nous's own mitigation is blocking the service domains that
+  #    would turn it into a code-execution pivot (shell_command,
+  #    command_line, python_script, pyscript, hassio, rest_command).
+  #
+  #  - SABnzbd: no first-party toolset exists (as of this writing), and no
+  #    well-established MCP server for it either. The closest fit found is
+  #    github.com/ryanbrinn/arr-mcp (PyPI: arr-mcp-server, MIT) — covers
+  #    Sonarr/Radarr/SABnzbd/Plex over MCP with bearer-token auth. It's a
+  #    small, single-maintainer project, not something with Nous/Nous-level
+  #    scrutiny — read it yourself before trusting it with an API key. Runs
+  #    as its own container (see its own docs for the up-to-date deploy
+  #    method) exposing an HTTP/SSE MCP endpoint; wire it into
+  #    ~/.hermes/config.yaml as a remote MCP server, and use tools.include
+  #    to allowlist only the sabnzbd_* tools — the same server can also
+  #    restart containers and manage Sonarr/Radarr, which you don't want
+  #    exposed just because SABnzbd is the only thing actually running here:
+  #
+  #      mcp_servers:
+  #        sabnzbd:
+  #          url: "http://127.0.0.1:<arr-mcp-server's port>"
+  #          headers:
+  #            Authorization: "Bearer ${ARR_MCP_API_KEY}"   # from ~/.hermes/.env
+  #          tools:
+  #            include: [ "sabnzbd_*" ]
   # =========================================================================
 
   # The model backend. Hermes Agent explicitly supports pointing at a local
@@ -136,6 +184,7 @@
       # Second, independent confinement layer — see the big comment block
       # above. Not a secret, so this is safe to declare here.
       HERMES_WRITE_SAFE_ROOT = "/srv/hermes-agent/workspace:/home/fabian/.hermes";
+      HASS_URL = "http://127.0.0.1:8123";
     };
     serviceConfig = {
       Type = "simple";
@@ -144,6 +193,10 @@
       # with `which hermes` as fabian after running the installer, and fix
       # this if it differs.
       ExecStart = "/home/fabian/.local/bin/hermes gateway";
+      # HASS_TOKEN, ARR_MCP_API_KEY, and anything else secret live here —
+      # never in this repo. Leading "-" makes it optional, so the unit
+      # still starts before you've bootstrapped that file.
+      EnvironmentFile = "-/home/fabian/.hermes/.env";
       Restart = "on-failure";
       RestartSec = 10;
     };
