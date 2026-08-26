@@ -1,72 +1,106 @@
-{ ... }:
+{ pkgs, ... }:
 
 {
   # =========================================================================
-  # Hermes agent sandbox
+  # Hermes Agent (Nous Research) — https://github.com/NousResearch/hermes-agent
   #
-  # Split into two pieces on purpose:
-  #   - Model inference (ollama, serving a Nous Hermes GGUF model) is plain
-  #     text generation with no tool/file/network access of its own — no
-  #     reason to sandbox it, so it runs as an ordinary trusted NixOS
-  #     service. nixpkgs ships a native module for it; no Docker overhead.
-  #   - The AGENT — the part that calls tools, browses the web, and touches
-  #     files on your behalf — is the part with a real blast radius, so
-  #     that one runs in Docker. The container boundary IS the sandbox:
-  #     inside it the agent gets ordinary full access (this is deliberately
-  #     NOT a --privileged or capability-locked-down container — the point
-  #     is unrestricted access to its OWN filesystem/process space, walled
-  #     off from the rest of this machine, not a further-restricted agent).
+  # NOT a Docker image to pull — it's a `curl | bash`-installed CLI/daemon
+  # (the `hermes` command) that bundles its own Python/Node runtime under
+  # ~/.hermes. It has its own execution-sandboxing concept: one of its
+  # built-in "terminal backends" (local/Docker/SSH/Singularity/Modal/...)
+  # runs whatever shell commands the agent decides to run inside a Docker
+  # container instead of directly on the host. That IS the "full access
+  # inside its sandbox" boundary you want — set its backend to `docker`
+  # (see the bootstrap steps below) rather than trying to wrap the whole
+  # `hermes` process in a container ourselves, which isn't how it's built.
   #
-  # Network: the container uses host networking (see extraOptions below),
-  # so it gets the same outbound internet access as the host itself —
-  # needed for the "web access" part of a personal-assistant agent. That
-  # also means it is NOT network-segmented from your LAN the way a bridge
-  # network would isolate it; if that matters later, switch to a
-  # user-defined bridge network and publish only the ports you need.
+  # ONLY install from the verified source: the official installer at
+  # hermes-agent.nousresearch.com, or github.com/NousResearch/hermes-agent
+  # directly. A web search for "Hermes Agent" turns up a cluster of
+  # lookalike domains (hermes-agent.org, hermes-ai.net, hermes-agent.ai,
+  # plus SEO blog spam) repeating suspiciously specific stats — don't
+  # install from any of those.
+  #
+  # This module intentionally does NOT run the installer for you. Piping
+  # an internet script into `bash` from inside a Nix module eval isn't
+  # reproducible and isn't something to do unattended for a tool that gets
+  # broad tool-calling access — read install.sh yourself first, then run
+  # it manually as fabian:
+  #   curl -fsSL https://hermes-agent.nousresearch.com/install.sh | less   # read it first
+  #   curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+  #   hermes model               # point it at local ollama, or a cloud provider
+  #   hermes config set <...>    # set the terminal/execution backend to `docker`
   # =========================================================================
 
+  # The model backend. Hermes Agent explicitly supports pointing at a local
+  # Ollama endpoint ("use any model you want" / `hermes model`) instead of
+  # a cloud API — keeps a personal-assistant agent's conversations off
+  # third-party infrastructure if that matters to you.
   services.ollama = {
     enable = true;
-    # This box has no GPU worth using — CPU inference only. Flip to "cuda"
-    # /"rocm" if servnix ever gets a real GPU.
-    acceleration = false;
-    # Loopback only: reachable from the agent container (shared network
-    # namespace, see below) and from you over SSH, never off the box
-    # directly. NOTE: verify this option name (`listenAddress`) against
-    # `nixos-option services.ollama` before your first switch — this repo
-    # has no working Nix installation to dry-build against right now.
-    listenAddress = "127.0.0.1:11434";
+    acceleration = false; # this box has no GPU worth using — CPU inference only
+    listenAddress = "127.0.0.1:11434"; # loopback only; verify option name via `nixos-option services.ollama`
   };
-  # Pull a Hermes model once the service is up, e.g.:
-  #   ollama pull hermes3
+  # Pull a Hermes model once the service is up, e.g.: ollama pull hermes3
 
-  # Workspace the agent container can read/write freely. Deliberately NOT
-  # $HOME, NOT the Docker socket, NOT /mnt/backup — only this one
-  # directory is exposed to it.
-  systemd.tmpfiles.rules = [
-    "d /srv/hermes-agent 0750 fabian fabian -"
+  # The installer bundles its own Python/Node binaries rather than using
+  # nixpkgs' — those are prebuilt dynamically-linked binaries, which don't
+  # run on NixOS without nix-ld (no /lib64/ld-linux-x86-64.so.2 here). This
+  # is the same problem modules/dev.nix solves for `uv`-downloaded
+  # Pythons; trimmed here to what a Node/Python CLI installer needs,
+  # without dev.nix's GUI/ML-oriented X11 and graphics libraries.
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      stdenv.cc.cc.lib
+      glibc
+      zlib
+      zstd
+      openssl
+      curl
+      bzip2
+      xz
+      libxml2
+      libxslt
+      icu
+      expat
+      glib
+      ncurses
+      libffi
+    ];
+  };
+
+  # Node native addons (better-sqlite3 and friends are common in CLI
+  # agents with local persistent memory) commonly need a compiler at
+  # install time, even on a machine that never builds anything else.
+  environment.systemPackages = with pkgs; [
+    gcc
+    gnumake
+    pkg-config
   ];
 
-  virtualisation.oci-containers.backend = "docker";
-  virtualisation.oci-containers.containers.hermes-agent = {
-    # Placeholder — swap in whatever agent image/build you land on
-    # (a Dockerfile you build yourself, or an existing agent framework
-    # pointed at the local ollama API below).
-    # image = "ghcr.io/CHANGEME/hermes-agent:latest";
+  # virtualisation.docker is already enabled in modules/server.nix — that's
+  # the same Docker daemon Hermes Agent's `docker` terminal backend talks
+  # to; fabian is already in the `docker` group via modules/base.nix.
 
-    # Off until `image` above is real — an unbuildable/missing image would
-    # otherwise fail the whole `nixos-rebuild switch`, not just this
-    # container.
-    autoStart = false;
-
-    environment = {
-      OLLAMA_BASE_URL = "http://127.0.0.1:11434";
+  # Left disabled (not in any target's Wants) until you've actually run
+  # the installer above and it's confirmed to exist at this path — a
+  # NixOS-managed unit pointing at a binary that isn't there yet would
+  # just fail on every boot. Once bootstrapped, add "multi-user.target" to
+  # wantedBy (or just `systemctl enable --now hermes-agent`).
+  systemd.services.hermes-agent = {
+    description = "Hermes Agent gateway (Nous Research)";
+    after = [ "network-online.target" "docker.service" "ollama.service" ];
+    wants = [ "network-online.target" ];
+    serviceConfig = {
+      Type = "simple";
+      User = "fabian";
+      # Path is a guess based on the installer docs (~/.local/bin) — verify
+      # with `which hermes` as fabian after running the installer, and fix
+      # this if it differs.
+      ExecStart = "/home/fabian/.local/bin/hermes gateway";
+      Restart = "on-failure";
+      RestartSec = 10;
     };
-    volumes = [
-      "/srv/hermes-agent:/workspace"
-    ];
-    extraOptions = [
-      "--network=host"
-    ];
   };
 }
