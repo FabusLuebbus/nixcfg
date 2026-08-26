@@ -11,6 +11,7 @@
     ../../modules/server.nix
     ../../modules/hermes-agent.nix
     ../../modules/home-assistant.nix
+    ../../modules/sabnzbd.nix
   ];
 
   networking.hostName = hostname;
