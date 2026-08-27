@@ -12,16 +12,26 @@
     build-system = [python.pkgs.hatchling];
     dependencies = [python.pkgs.blessed];
   };
-  # Nix store sources are immutable. Keep the repo's defaults, but place the
-  # editable runtime copy in XDG data so EQ changes can be saved.
+  # Nix store sources are immutable. Seed an editable runtime copy in XDG data
+  # so ytp can persist EQ changes without modifying the packaged defaults.
   ytpPlayer = pkgs.writeShellScriptBin "ytp-player" ''
-    export YTP_CONFIG_DIR="''${XDG_DATA_HOME:-$HOME/.local/share}/ytp"
+    config_dir="''${XDG_DATA_HOME:-$HOME/.local/share}/ytp"
+    mkdir -p "$config_dir"
+    for config_file in eq.json speaker_tall.txt speaker_med.txt speaker_small.txt; do
+      config_path="$config_dir/$config_file"
+      if [[ -L "$config_path" && "$(readlink "$config_path")" == /nix/store/* ]]; then
+        rm "$config_path"
+      fi
+      if [[ ! -e "$config_path" ]]; then
+        cp "${inputs.ytp}/config/$config_file" "$config_path"
+      fi
+      if [[ "$config_file" == eq.json ]]; then
+        chmod u+rw "$config_path"
+      fi
+    done
+    export YTP_CONFIG_DIR="$config_dir"
     exec ${ytpPackage}/bin/ytp "$@"
   '';
 in {
-  home.file.".local/share/ytp/eq.json".source = "${inputs.ytp}/config/eq.json";
-  home.file.".local/share/ytp/speaker_tall.txt".source = "${inputs.ytp}/config/speaker_tall.txt";
-  home.file.".local/share/ytp/speaker_med.txt".source = "${inputs.ytp}/config/speaker_med.txt";
-  home.file.".local/share/ytp/speaker_small.txt".source = "${inputs.ytp}/config/speaker_small.txt";
   home.packages = [ytpPlayer];
 }
