@@ -1,0 +1,64 @@
+name: Update flake.lock
+
+on:
+  schedule:
+    - cron: '0 6 * * 4' # Thursday 06:00 UTC, offset from the weekly vuln scan
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        id: install-nix
+        continue-on-error: true
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install Nix (fallback)
+        if: steps.install-nix.outcome == 'failure'
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: nix flake update
+        run: nix flake update
+
+      - name: Diff flake.lock
+        id: diff
+        run: |
+          if git diff --quiet -- flake.lock; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Uses the default GITHUB_TOKEN, so the PR this opens will NOT
+      # automatically trigger ci.yml (GitHub blocks workflows triggered by
+      # the default token from spawning further workflow runs, to avoid
+      # recursion). To get ci.yml running on these PRs automatically, add a
+      # repo secret FLAKE_UPDATE_PAT (a PAT or GitHub App token with
+      # contents:write + pull-requests:write) and pass it as `token:` below
+      # instead. Until then, push an empty commit or close/reopen the PR to
+      # trigger CI manually.
+      - name: Open pull request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: 'flake.lock: update inputs'
+          title: 'flake.lock: update inputs'
+          body: |
+            Automated weekly `nix flake update`.
+
+            ci.yml should run on this PR before merging. If it hasn't started,
+            see the note in `.github/workflows/flake-update.yml` about the
+            default GITHUB_TOKEN not triggering workflows.
+          branch: automated/flake-update
+          delete-branch: true
+          add-paths: flake.lock

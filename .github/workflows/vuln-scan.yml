@@ -1,0 +1,132 @@
+name: Vulnerability scan
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Monday 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  scan:
+    name: vulnix ${{ matrix.host }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Keep in sync with the nixosConfigurations defined in flake.nix.
+        host: [framenix, desknix]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        id: install-nix
+        continue-on-error: true
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install Nix (fallback)
+        if: steps.install-nix.outcome == 'failure'
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-build-${{ matrix.host }}-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-build-${{ matrix.host }}-
+          gc-max-store-size-linux: 4G
+
+      - name: Build system closure for ${{ matrix.host }}
+        id: build
+        run: |
+          out=$(nix build --no-link --print-out-paths .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel)
+          echo "closure=$out" >> "$GITHUB_OUTPUT"
+
+      - name: Run vulnix (informational only)
+        id: vulnix
+        run: |
+          set +e
+          nix run nixpkgs#vulnix -- --json "${{ steps.build.outputs.closure }}" > vulnix-${{ matrix.host }}.json 2> vulnix-${{ matrix.host }}.log
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Write job summary
+        id: summarize
+        run: |
+          {
+            echo "## vulnix report: ${{ matrix.host }}"
+            echo
+            if [ -s "vulnix-${{ matrix.host }}.json" ] && jq -e 'length > 0' "vulnix-${{ matrix.host }}.json" >/dev/null 2>&1; then
+              count=$(jq 'length' "vulnix-${{ matrix.host }}.json")
+              echo "Found **$count** potentially affected derivation(s)."
+              echo
+              echo '| CVE | Package | Version |'
+              echo '|---|---|---|'
+              jq -r '.[] | . as $d | ($d.affected_by // [])[] as $cve | "| \($cve) | \($d.pname // $d.name // "?") | \($d.version // "?") |"' "vulnix-${{ matrix.host }}.json" 2>/dev/null | head -n 100
+              echo "findings=true" >> "$GITHUB_OUTPUT"
+            else
+              echo "No findings (or vulnix produced no parseable JSON — treat NVD feed as informational)."
+              echo "findings=false" >> "$GITHUB_OUTPUT"
+            fi
+            echo
+            echo '<details><summary>Raw vulnix stderr/log</summary>'
+            echo
+            echo '```'
+            tail -n 100 "vulnix-${{ matrix.host }}.log" 2>/dev/null || true
+            echo '```'
+            echo '</details>'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vulnix-${{ matrix.host }}
+          path: |
+            vulnix-${{ matrix.host }}.json
+            vulnix-${{ matrix.host }}.log
+          retention-days: 30
+
+  report-issue:
+    name: Update tracking issue
+    needs: scan
+    runs-on: ubuntu-latest
+    if: always()
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: vulnix-*
+          merge-multiple: true
+
+      - name: Open or update tracking issue if there are findings
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          any_findings=false
+          body="Weekly vulnix scan for $(date -u +%Y-%m-%d), run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"$'\n\n'
+          for f in vulnix-*.json; do
+            [ -f "$f" ] || continue
+            host=$(echo "$f" | sed -E 's/^vulnix-(.*)\.json$/\1/')
+            if jq -e 'length > 0' "$f" >/dev/null 2>&1; then
+              any_findings=true
+              body+=$'\n### '"$host"$'\n\n'
+              body+=$(jq -r '.[] | . as $d | ($d.affected_by // [])[] as $cve | "- \($cve): \($d.pname // $d.name // "?") \($d.version // "?")"' "$f" 2>/dev/null)
+              body+=$'\n'
+            fi
+          done
+
+          if [ "$any_findings" != "true" ]; then
+            echo "No findings this run; not touching the tracking issue."
+            exit 0
+          fi
+
+          existing=$(gh issue list --search "vulnix weekly scan in:title" --state open --json number --jq '.[0].number' || true)
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "vulnix weekly scan: findings" --body "$body" --label "security" || \
+              gh issue create --title "vulnix weekly scan: findings" --body "$body"
+          fi

@@ -11,6 +11,13 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Standalone ytp player; packaged below rather than embedding its source
+    # in this configuration.
+    ytp = {
+      url = "github:FabusLuebbus/ytp";
+      flake = false;
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, ... } @ inputs:

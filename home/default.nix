@@ -3,13 +3,13 @@
 {
   imports = [
     ./shell.nix
+    ./ytp-player.nix
     ./git.nix
     ./ssh.nix
     ./terminal.nix
     ./claude-code.nix
     ./backup.nix
     ./gnome-extensions.nix
-    ./nautilus.nix
   ];
 
   home.username = username;
@@ -54,6 +54,9 @@
     unzip
     p7zip
     fastfetch
+    yt-dlp
+    mpv
+    aubio # aubiotrack: beat detection for ytp-player's beat-synced visual
 
     # util
     wl-clipboard

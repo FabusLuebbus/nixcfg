@@ -56,12 +56,9 @@ in
   ''
   # The backup drive's other partition (e.g. an encrypted volume unrelated
   # to this system) — tell udisks2 to ignore it outright so nothing
-  # auto-mounts it just because the drive got plugged in. No ACTION=="add"
-  # filter: ID_FS_UUID for a LUKS partition isn't populated until blkid
-  # probes it on a follow-up "change" event, so restricting to "add" would
-  # make this never actually match.
+  # auto-mounts it just because the drive got plugged in.
   + lib.optionalString (cfg.ignoreFsUuid != null) ''
-    SUBSYSTEM=="block", ENV{ID_FS_UUID}=="${cfg.ignoreFsUuid}", ENV{UDISKS_IGNORE}="1"
+    ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_UUID}=="${cfg.ignoreFsUuid}", ENV{UDISKS_IGNORE}="1"
   '';
 
   # --- Backup -----------------------------------------------------------------

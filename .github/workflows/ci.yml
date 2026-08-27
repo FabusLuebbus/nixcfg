@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flake-check:
+    name: nix flake check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        id: install-nix
+        continue-on-error: true
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install Nix (fallback)
+        if: steps.install-nix.outcome == 'failure'
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-flake-check-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-flake-check-
+          gc-max-store-size-linux: 2G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-flake-check-
+          purge-last-accessed: P1DT12H
+
+      - run: nix flake check --all-systems --print-build-logs
+
+  build:
+    name: build ${{ matrix.host }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Keep in sync with the nixosConfigurations defined in flake.nix.
+        host: [framenix, desknix]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        id: install-nix
+        continue-on-error: true
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install Nix (fallback)
+        if: steps.install-nix.outcome == 'failure'
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - uses: nix-community/cache-nix-action@v7
+        with:
+          primary-key: nix-${{ runner.os }}-build-${{ matrix.host }}-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-build-${{ matrix.host }}-
+          gc-max-store-size-linux: 4G
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-build-${{ matrix.host }}-
+          purge-last-accessed: P1DT12H
+
+      - name: Build system closure for ${{ matrix.host }}
+        run: nix build --no-link --print-build-logs .#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel
+
+  format:
+    name: alejandra --check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        id: install-nix
+        continue-on-error: true
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install Nix (fallback)
+        if: steps.install-nix.outcome == 'failure'
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - run: nix run nixpkgs#alejandra -- --check .
+
+  statix:
+    name: statix check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        id: install-nix
+        continue-on-error: true
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install Nix (fallback)
+        if: steps.install-nix.outcome == 'failure'
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - run: nix run nixpkgs#statix -- check .
+
+  deadnix:
+    name: deadnix (warn-only)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        id: install-nix
+        continue-on-error: true
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Install Nix (fallback)
+        if: steps.install-nix.outcome == 'failure'
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      # Informational only for now: unused bindings shouldn't block CI yet.
+      - run: nix run nixpkgs#deadnix -- --fail . || echo "::warning::deadnix found unused bindings"

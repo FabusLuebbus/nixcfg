@@ -297,6 +297,21 @@
         )
       }
 
+      # fuzzy-pick a track from YouTube search results, then hand off to
+      # ytp-player (the standalone ytp flake input) for a full-screen audio player:
+      # thumbnail-ascii-art or animated speakers visual (toggle with 'v'),
+      # a live progress bar, and an arrow-key "up next" queue.
+      ytp() {
+        local query="$*" url
+        [[ -z $query ]] && read -r "query?Search YouTube: "
+        [[ -z $query ]] && return 1
+        url=$(yt-dlp "ytsearch15:$query" --flat-playlist \
+          --print "%(title)s | %(duration_string)s | %(channel)s | %(webpage_url)s" \
+        | fzf --delimiter=' \| ' --with-nth=1,2,3 \
+        | awk -F' \\| ' '{print $NF}')
+        [[ -n $url ]] && ytp-player "$url"
+      }
+
       # plain interactive claude session in ~/nixcfg, same tool
       # restrictions as nixcfg-cleanup but no initial prompt -- for
       # freeform work instead of the scripted commit-splitting flow.
