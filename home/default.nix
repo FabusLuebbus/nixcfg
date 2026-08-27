@@ -1,6 +1,9 @@
-{ pkgs, lib, username, ... }:
-
 {
+  pkgs,
+  lib,
+  username,
+  ...
+}: {
   imports = [
     ./shell.nix
     ./ytp-player.nix
@@ -157,8 +160,8 @@
     name = "Bitwarden";
     exec = "env GDK_BACKEND=x11 bitwarden --ozone-platform=x11 %U";
     icon = "bitwarden";
-    categories = [ "Utility" ];
-    mimeType = [ "x-scheme-handler/bitwarden" ];
+    categories = ["Utility"];
+    mimeType = ["x-scheme-handler/bitwarden"];
   };
 
   # GNOME settings, declared. Fill in more once you know what you want —
@@ -203,11 +206,11 @@
       # mismatch and silently falls back to the schema defaults (16/8).
       inner-gaps = lib.hm.gvariant.mkUint32 4;
       outer-gaps = lib.hm.gvariant.mkUint32 2;
-      span-window-all-tiles = [ "<Control><Super>space" ];
-      span-window-down = [ "<Control><Super>Down" ];
-      span-window-left = [ "<Control><Super>Left" ];
-      span-window-right = [ "<Control><Super>Right" ];
-      span-window-up = [ "<Control><Super>Up" ];
+      span-window-all-tiles = ["<Control><Super>space"];
+      span-window-down = ["<Control><Super>Down"];
+      span-window-left = ["<Control><Super>Left"];
+      span-window-right = ["<Control><Super>Right"];
+      span-window-up = ["<Control><Super>Up"];
       edge-tiling-mode = "default";
       enable-window-border = false;
       show-indicator = false;

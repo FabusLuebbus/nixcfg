@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   xdg.configFile."ghostty/config".text = ''
     font-family = JetBrainsMono Nerd Font
     font-size = 12
@@ -69,5 +67,5 @@
   # No home-manager module for ghostty yet (as of home-manager 26.05), so
   # it's just a package + the plain config file above — same pattern as the
   # "bringing existing dotfiles" note in home/default.nix.
-  home.packages = [ pkgs.mosh pkgs.ghostty ];
+  home.packages = [pkgs.mosh pkgs.ghostty];
 }

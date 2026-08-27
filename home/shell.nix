@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -14,76 +12,74 @@
     syntaxHighlighting = {
       enable = true;
       # home-manager always prepends "main" itself, so only the extra goes here.
-      highlighters = [ "cursor" ];
-      styles =
-        let
-          text = "fg=#cdd6f4";
-          green = "fg=#a6e3a1";
-          peach = "fg=#fab387";
-          mauve = "fg=#cba6f7";
-          red = "fg=#f38ba8";
-          yellow = "fg=#f9e2af";
-          maroon = "fg=#eba0ac";
-        in
-        {
-          default = text;
-          unknown-token = maroon;
+      highlighters = ["cursor"];
+      styles = let
+        text = "fg=#cdd6f4";
+        green = "fg=#a6e3a1";
+        peach = "fg=#fab387";
+        mauve = "fg=#cba6f7";
+        red = "fg=#f38ba8";
+        yellow = "fg=#f9e2af";
+        maroon = "fg=#eba0ac";
+      in {
+        default = text;
+        unknown-token = maroon;
 
-          # commands and things that resolve to one
-          reserved-word = green;
-          alias = green;
-          suffix-alias = green;
-          global-alias = green;
-          function = green;
-          command = green;
-          builtin = green;
-          hashed-command = green;
-          precommand = "${green},italic";
+        # commands and things that resolve to one
+        reserved-word = green;
+        alias = green;
+        suffix-alias = green;
+        global-alias = green;
+        function = green;
+        command = green;
+        builtin = green;
+        hashed-command = green;
+        precommand = "${green},italic";
 
-          commandseparator = red;
-          autodirectory = "${peach},italic";
+        commandseparator = red;
+        autodirectory = "${peach},italic";
 
-          path = "${text},underline";
-          path_prefix = "${text},underline";
-          path_pathseparator = "${red},underline";
-          path_prefix_pathseparator = "${red},underline";
+        path = "${text},underline";
+        path_prefix = "${text},underline";
+        path_pathseparator = "${red},underline";
+        path_prefix_pathseparator = "${red},underline";
 
-          globbing = text;
-          history-expansion = mauve;
+        globbing = text;
+        history-expansion = mauve;
 
-          command-substitution = text;
-          command-substitution-delimiter = text;
-          command-substitution-quoted = yellow;
-          process-substitution = text;
-          process-substitution-delimiter = text;
+        command-substitution = text;
+        command-substitution-delimiter = text;
+        command-substitution-quoted = yellow;
+        process-substitution = text;
+        process-substitution-delimiter = text;
 
-          single-hyphen-option = peach;
-          double-hyphen-option = peach;
+        single-hyphen-option = peach;
+        double-hyphen-option = peach;
 
-          back-quoted-argument = mauve;
-          back-quoted-argument-delimiter = red;
-          back-quoted-argument-unclosed = maroon;
-          back-double-quoted-argument = red;
-          back-dollar-quoted-argument = red;
+        back-quoted-argument = mauve;
+        back-quoted-argument-delimiter = red;
+        back-quoted-argument-unclosed = maroon;
+        back-double-quoted-argument = red;
+        back-dollar-quoted-argument = red;
 
-          single-quoted-argument = yellow;
-          single-quoted-argument-unclosed = maroon;
-          double-quoted-argument = yellow;
-          double-quoted-argument-unclosed = maroon;
-          rc-quote = yellow;
+        single-quoted-argument = yellow;
+        single-quoted-argument-unclosed = maroon;
+        double-quoted-argument = yellow;
+        double-quoted-argument-unclosed = maroon;
+        rc-quote = yellow;
 
-          dollar-quoted-argument = text;
-          dollar-quoted-argument-unclosed = maroon;
-          dollar-double-quoted-argument = text;
+        dollar-quoted-argument = text;
+        dollar-quoted-argument-unclosed = maroon;
+        dollar-double-quoted-argument = text;
 
-          assign = text;
-          redirection = text;
-          named-fd = text;
-          numeric-fd = text;
-          arg0 = text;
-          cursor = text;
-          comment = "fg=#585b70";
-        };
+        assign = text;
+        redirection = text;
+        named-fd = text;
+        numeric-fd = text;
+        arg0 = text;
+        cursor = text;
+        comment = "fg=#585b70";
+      };
     };
 
     # Up/Down filter history by what you have already typed, instead of
@@ -92,8 +88,8 @@
     # atuin is handed --disable-up-arrow below so it does not steal these back.
     historySubstringSearch = {
       enable = true;
-      searchUpKey = [ "^[[A" "^[OA" ];
-      searchDownKey = [ "^[[B" "^[OB" ];
+      searchUpKey = ["^[[A" "^[OA"];
+      searchDownKey = ["^[[B" "^[OB"];
     };
 
     # Nags you when you type out a command you already have an alias for.
@@ -346,7 +342,7 @@
     # atuin's init runs last in .zshrc and would otherwise rebind Up,
     # clobbering the history-substring-search keys above. Confine it to
     # Ctrl+R: deliberate search stays atuin's, arrows stay substring search.
-    flags = [ "--disable-up-arrow" ];
+    flags = ["--disable-up-arrow"];
     settings = {
       auto_sync = false; # flip to true once you have an account
       update_check = false;

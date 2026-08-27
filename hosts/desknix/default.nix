@@ -1,6 +1,4 @@
-{ hostname, ... }:
-
-{
+{hostname, ...}: {
   imports = [
     # Generated on the machine itself by the installer. Doesn't exist yet —
     # after `nixos-install`, copy it in before the first dry-build:

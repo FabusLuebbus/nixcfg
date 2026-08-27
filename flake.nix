@@ -20,19 +20,24 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... } @ inputs:
-    let
-      system = "x86_64-linux";
-      username = "fabian";
+  outputs = {
+    self,
+    nixpkgs,
+    home-manager,
+    ...
+  } @ inputs: let
+    system = "x86_64-linux";
+    username = "fabian";
 
-      # One nixosSystem per host, all sharing the same user/home-manager wiring.
-      # Add a new host by dropping a `hosts/<hostname>/` directory (modeled on
-      # an existing one) and adding one line below.
-      mkHost = hostname: nixpkgs.lib.nixosSystem {
+    # One nixosSystem per host, all sharing the same user/home-manager wiring.
+    # Add a new host by dropping a `hosts/<hostname>/` directory (modeled on
+    # an existing one) and adding one line below.
+    mkHost = hostname:
+      nixpkgs.lib.nixosSystem {
         inherit system;
 
         # Makes `inputs`, `username` and `hostname` available inside every module.
-        specialArgs = { inherit inputs username hostname; };
+        specialArgs = {inherit inputs username hostname;};
 
         modules = [
           ./hosts/${hostname}
@@ -42,14 +47,13 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.backupFileExtension = "hm-bak";
-            home-manager.extraSpecialArgs = { inherit inputs username; };
+            home-manager.extraSpecialArgs = {inherit inputs username;};
             home-manager.users.${username} = import ./home;
           }
         ];
       };
-    in
-    {
-      nixosConfigurations.framenix = mkHost "framenix"; # laptop
-      nixosConfigurations.desknix = mkHost "desknix"; # nvidia desktop
-    };
+  in {
+    nixosConfigurations.framenix = mkHost "framenix"; # laptop
+    nixosConfigurations.desknix = mkHost "desknix"; # nvidia desktop
+  };
 }

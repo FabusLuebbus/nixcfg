@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   # ==========================================================================
   # nix-ld — THE most important block in this whole repo for your workflow.
   #

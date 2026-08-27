@@ -1,6 +1,9 @@
-{ lib, pkgs, osConfig, ... }:
-
-let
+{
+  lib,
+  pkgs,
+  osConfig,
+  ...
+}: let
   # Not packaged in nixpkgs (extensions.gnome.org still serves it, but the
   # nixpkgs generator drops extensions that don't declare support for a
   # recent shell version, and this one tops out at 42). Packaged by hand
@@ -38,11 +41,10 @@ let
   # desknix (the nvidia desktop) has a different networking.hostName and
   # falls out of this check automatically.
   isLaptop = osConfig.networking.hostName == "framenix";
-in
-{
+in {
   programs.gnome-shell = {
     enable = true;
-    extensions = map (package: { inherit package; }) (
+    extensions = map (package: {inherit package;}) (
       (with pkgs.gnomeExtensions; [
         arcmenu
         astra-monitor
@@ -54,8 +56,8 @@ in
         rounded-window-corners-reborn
         tiling-shell
       ])
-      ++ [ cpupower ]
-      ++ lib.optionals isLaptop [ pkgs.gnomeExtensions.battery-time-2 ]
+      ++ [cpupower]
+      ++ lib.optionals isLaptop [pkgs.gnomeExtensions.battery-time-2]
     );
   };
 }

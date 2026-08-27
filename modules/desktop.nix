@@ -1,6 +1,4 @@
-{ pkgs, ... }:
-
-{
+{pkgs, ...}: {
   services.xserver.enable = true;
 
   # GNOME. To swap to KDE Plasma instead, replace the two lines below with:
@@ -13,7 +11,7 @@
   # Without this, extensions that use GMenu (e.g. ArcMenu) fail with
   # "Typelib file for namespace 'GMenu' (any version) not found".
   # https://github.com/NixOS/nixpkgs/issues/325497
-  services.desktopManager.gnome.sessionPath = [ pkgs.gnome-menus ];
+  services.desktopManager.gnome.sessionPath = [pkgs.gnome-menus];
 
   # Keyboard layout for the graphical session.
   services.xserver.xkb = {

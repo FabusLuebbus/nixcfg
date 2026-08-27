@@ -1,0 +1,5 @@
+# Repeated option namespaces are intentional in NixOS and home-manager
+# modules: separate sections keep unrelated concerns readable while the
+# module system merges them. Keep all other statix lints enabled.
+disabled = ["repeated_keys"]
+ignore = [".direnv"]

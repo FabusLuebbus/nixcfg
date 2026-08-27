@@ -1,0 +1,34 @@
+repos:
+  - repo: local
+    hooks:
+      - id: alejandra
+        name: Check Nix formatting (Alejandra)
+        entry: nix run nixpkgs#alejandra -- --check
+        language: system
+        types: [nix]
+
+      - id: statix
+        name: Check Nix lints (statix)
+        entry: nix run nixpkgs#statix -- check
+        language: system
+        types: [nix]
+        pass_filenames: false
+
+      - id: deadnix
+        name: Check unused Nix code (deadnix)
+        entry: nix run nixpkgs#deadnix --
+        language: system
+        types: [nix]
+
+      - id: actionlint
+        name: Check GitHub Actions workflows (actionlint)
+        entry: nix run nixpkgs#actionlint --
+        language: system
+        files: ^\.github/workflows/.*\.ya?ml$
+
+      - id: flake-check
+        name: Check flake evaluation (nix flake check)
+        entry: nix flake check --all-systems
+        language: system
+        pass_filenames: false
+        always_run: true

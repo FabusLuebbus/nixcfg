@@ -1,6 +1,4 @@
-{ hostname, ... }:
-
-{
+{hostname, ...}: {
   imports = [
     # Generated on the machine itself by the installer.
     # Copy /etc/nixos/hardware-configuration.nix into this folder on day one.
