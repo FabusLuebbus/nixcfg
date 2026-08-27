@@ -64,11 +64,11 @@
     "ytp": {
       "flake": false,
       "locked": {
-        "lastModified": 1787833525,
-        "narHash": "sha256-Xv0J7vTHahlRZIh3G9fUDhAbYzgLhpbryx+hfRPjalE=",
+        "lastModified": 1787836057,
+        "narHash": "sha256-Mdqk7IJFoabOaP75x9uTa/6z/MKSdZG9gG9PF68+IQE=",
         "owner": "FabusLuebbus",
         "repo": "ytp",
-        "rev": "776bf89ad3724b2c5b5d89b0151cf2efe699f786",
+        "rev": "e2a135d035ad3e349b837efee9a329e86e9f9652",
         "type": "github"
       },
       "original": {
