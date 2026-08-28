@@ -79,9 +79,12 @@
     synology-drive-client
     xdotool
 
+    #development
+    conda
+    vscode
+
     # essential apps
     firefox
-    vscode
     # WORKAROUND (2026-08-25): pinned to unstable to escape a broken stable
     # version. 2026.7.0 in nixos-26.05 routes clipboard writes through the XDG
     # portal, which fails because Bitwarden marks its process non-dumpable, so
