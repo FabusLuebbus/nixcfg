@@ -57,6 +57,11 @@
     ];
   };
 
+  # Colors ported verbatim from catppuccin/delta's mocha config
+  # (https://github.com/catppuccin/delta) rather than the bat-bundled
+  # "Catppuccin Mocha" syntax-theme alone, since that only recolors code
+  # tokens inside a hunk -- these keys are what themes the diff chrome
+  # (line numbers, +/- backgrounds, headers) around it.
   programs.delta = {
     enable = true;
     enableGitIntegration = true;
@@ -64,6 +69,26 @@
       navigate = true;
       line-numbers = true;
       side-by-side = false;
+
+      syntax-theme = "Catppuccin Mocha";
+      dark = true;
+      file-style = "#cdd6f4";
+      file-decoration-style = "#6c7086";
+      commit-decoration-style = "#6c7086 bold box ul";
+      hunk-header-style = "file line-number syntax";
+      hunk-header-decoration-style = "#6c7086 box ul";
+      hunk-header-file-style = "bold";
+      hunk-header-line-number-style = "bold #a6adc8";
+      line-numbers-left-style = "#6c7086";
+      line-numbers-right-style = "#6c7086";
+      line-numbers-zero-style = "#6c7086";
+      line-numbers-minus-style = "bold #f38ba8";
+      line-numbers-plus-style = "bold #a6e3a1";
+      minus-style = "syntax #493447";
+      minus-emph-style = "bold syntax #694559";
+      plus-style = "syntax #394545";
+      plus-emph-style = "bold syntax #4e6356";
+      map-styles = "bold purple => syntax #5b4e74, bold blue => syntax #445375, bold cyan => syntax #446170, bold yellow => syntax #6b635b";
     };
   };
 
@@ -72,5 +97,23 @@
     settings.git_protocol = "ssh";
   };
 
-  programs.lazygit.enable = true;
+  # Colors ported from catppuccin/lazygit's mocha+blue preset
+  # (https://github.com/catppuccin/lazygit).
+  programs.lazygit = {
+    enable = true;
+    settings.gui.theme = {
+      activeBorderColor = ["#89b4fa" "bold"];
+      inactiveBorderColor = ["#a6adc8"];
+      searchingActiveBorderColor = ["#f9e2af"];
+      optionsTextColor = ["#89b4fa"];
+      selectedLineBgColor = ["#313244"];
+      inactiveViewSelectedLineBgColor = ["#6c7086"];
+      cherryPickedCommitFgColor = ["#89b4fa"];
+      cherryPickedCommitBgColor = ["#45475a"];
+      markedBaseCommitFgColor = ["#89b4fa"];
+      markedBaseCommitBgColor = ["#f9e2af"];
+      unstagedChangesColor = ["#f38ba8"];
+      defaultFgColor = ["#cdd6f4"];
+    };
+  };
 }

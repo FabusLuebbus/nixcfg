@@ -1,5 +1,6 @@
 {pkgs, ...}: {
   xdg.configFile."ghostty/config".text = ''
+    theme = Catppuccin Mocha
     font-family = JetBrainsMono Nerd Font
     font-size = 12
     window-padding-x = 6
@@ -40,6 +41,12 @@
           set -g @continuum-restore 'on'
           set -g @continuum-save-interval '10'
         '';
+      }
+      {
+        # loaded last: it restyles status-line elements the other plugins
+        # define, so it needs to see them already registered.
+        plugin = catppuccin;
+        extraConfig = "set -g @catppuccin_flavor 'mocha'";
       }
     ];
 
