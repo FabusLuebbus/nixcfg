@@ -50,7 +50,17 @@
     jq
     yq-go
     htop
-    btop
+    # dlopen's libnvidia-ml.so at runtime for NVIDIA stats, but that lib
+    # lives at /run/opengl-driver/lib which isn't on the default linker
+    # search path, so it silently shows no GPU without this wrapper.
+    (btop.overrideAttrs (old: {
+      postFixup = ''
+        ${old.postFixup or ""}
+        wrapProgram $out/bin/btop \
+          --suffix LD_LIBRARY_PATH : /run/opengl-driver/lib
+      '';
+      nativeBuildInputs = (old.nativeBuildInputs or []) ++ [makeWrapper];
+    }))
     tree
     dust
     duf
