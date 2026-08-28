@@ -100,3 +100,33 @@ be conservative.
   first search. Once `haspkg` has narrowed things down, further digging
   (reading the matched files, tracing imports, etc.) with custom commands
   is fine.
+
+## Known quirks of this system
+
+When you burn real effort tracking down a non-obvious failure specific to
+how this system/config behaves (not a generic Nix mistake covered above),
+add it here before finishing the task — future sessions shouldn't have to
+rediscover it. Keep entries short: what breaks, why, the fix.
+
+- **`dconf.settings` array values must be Nix lists, not stringified
+  GVariant literals.** Writing `key = "['<Mod>Key']";` serializes to a
+  GVariant *string* containing that text, not an array-of-strings — the
+  schema expects `as` and silently falls back to its default with no
+  error (same failure shape as the `uint32` vs plain-int mismatch noted
+  by the `tilingshell` gaps comment in `home/default.nix`). Write it as a
+  plain Nix list instead: `key = ["<Mod>Key"];` (see `span-window-left`
+  in `home/default.nix` for the correct pattern).
+- **`dconf-service` is keyed to the systemd `user@<uid>.service` manager,
+  not the login session.** It does not restart on logout/login, so a
+  "fresh GNOME session" after `nixos-rebuild switch` can still serve a
+  stale in-memory value even though the on-disk dconf db (and `dconf
+  read`) already show the new one. Diagnose by comparing `dconf read
+  <path>` (reads the file directly) against `gsettings get` (goes through
+  the live service) for the same key — a mismatch means the service is
+  stale. Fix with `systemctl --user restart dconf.service`.
+- **Ghostty's `working-directory = home` is overridden by
+  `window-inherit-working-directory` (default `true`).** Any new
+  window/tab opened while another Ghostty terminal exists inherits that
+  terminal's cwd instead of using `working-directory`. Set
+  `window-inherit-working-directory = false` alongside it in
+  `home/terminal.nix` if the intent is "always open in $HOME."
