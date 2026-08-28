@@ -30,6 +30,7 @@
       fi
     done
     export YTP_CONFIG_DIR="$config_dir"
+    export YTP_MPRIS_SCRIPT="${pkgs.mpvScripts.mpris}/share/mpv/scripts/mpris.so"
     exec ${ytpPackage}/bin/ytp "$@"
   '';
 in {
