@@ -8,6 +8,8 @@
     scrollback-limit = 100000000
     copy-on-select = clipboard
     confirm-close-surface = false
+    working-directory = home
+    window-inherit-working-directory = false
 
     keybind = ctrl+shift+enter=new_window
     keybind = ctrl+shift+t=new_tab
