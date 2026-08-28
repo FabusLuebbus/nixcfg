@@ -98,7 +98,7 @@
     libreoffice
     thunderbird
     vlc
-    papers
+    papers # pdf reader
 
     # communication
     slack
