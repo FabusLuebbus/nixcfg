@@ -194,6 +194,20 @@
       natural-scroll = true;
       tap-to-click = true;
     };
+    # Default is true (workspace switch only affects the primary monitor,
+    # leaving other monitors' windows visible/static); we want switching to
+    # move all monitors together.
+    "org/gnome/mutter" = {
+      workspaces-only-on-primary = false;
+    };
+    "org/gnome/desktop/wm/keybindings" = {
+      # GNOME arranges workspaces as a single horizontal row, so
+      # move-to-workspace-up/down have no row above/below to target and are
+      # silent no-ops; left/right are the actual previous/next-workspace
+      # actions.
+      move-to-workspace-left = ["<Control><Super>Page_Up"];
+      move-to-workspace-right = ["<Control><Super>Page_Down"];
+    };
     # GNOME dropped the old built-in "terminal" media-key binding, so a
     # custom keybinding pointing at an explicit command is the only way
     # to do this declaratively.
