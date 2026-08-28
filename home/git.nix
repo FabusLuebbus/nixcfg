@@ -12,6 +12,7 @@
       user.email = "fabian.luebbe@gmail.com";
       # --------------------
 
+      core.editor = "nvim";
       init.defaultBranch = "main";
       pull.rebase = true;
       push.autoSetupRemote = true;
