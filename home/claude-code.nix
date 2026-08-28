@@ -54,6 +54,11 @@
       - Do not add explanatory comments unless the logic is non-obvious.
     '';
 
+    # Custom skills, symlinked into ~/.claude/skills/<name>/.
+    skills = {
+      thermo-nuclear-code-quality-review = ./skills/thermo-nuclear-code-quality-review;
+    };
+
     # MCP servers, declared. Never inline a token here — this file is in git
     # and lands world-readable in the Nix store. Use a wrapper that reads
     # from sops-nix/agenix, or leave the server out until secrets are set up.
