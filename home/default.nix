@@ -98,7 +98,8 @@
     libreoffice
     thunderbird
     vlc
-    papers # pdf reader
+    papers # lightweight pdf reader
+    xournalpp # pdf editing
 
     # communication
     slack
