@@ -68,6 +68,9 @@
 
   # ---------------------------------------------------------------- networking
   networking.networkmanager.enable = true;
+  # The NetworkManager plugin must be visible to the system service, not just
+  # the user profile — home-manager's home.packages doesn't reach it.
+  networking.networkmanager.plugins = [pkgs.networkmanager-openvpn];
   networking.firewall.enable = true;
 
   # ------------------------------------------------------------------ packages
