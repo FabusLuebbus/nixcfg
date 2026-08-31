@@ -61,8 +61,12 @@ in {
       # The backup drive's other partition (e.g. an encrypted volume unrelated
       # to this system) — tell udisks2 to ignore it outright so nothing
       # auto-mounts it just because the drive got plugged in.
+      # Matches "add" and "change": udisks2 can end up exporting the device
+      # from a later "change" event (e.g. re-probe after the LUKS header
+      # settles) that an "add"-only rule never covers, silently letting the
+      # unlock prompt back in.
       + lib.optionalString (cfg.ignoreFsUuid != null) ''
-        ACTION=="add", SUBSYSTEM=="block", ENV{ID_FS_UUID}=="${cfg.ignoreFsUuid}", ENV{UDISKS_IGNORE}="1"
+        ACTION=="add|change", SUBSYSTEM=="block", ENV{ID_FS_UUID}=="${cfg.ignoreFsUuid}", ENV{UDISKS_IGNORE}="1"
       '';
 
     # --- Backup -----------------------------------------------------------------
