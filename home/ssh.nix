@@ -78,6 +78,12 @@ _: {
         User = "git";
         IdentityFile = "~/.ssh/id_ed25519";
       };
+
+      "horeka" = {
+        HostName = "horeka.scc.kit.edu";
+        User = "co7453";
+        IdentityFile = "~/.ssh/id_ed25519";
+      };
     };
   };
 
