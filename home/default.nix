@@ -100,6 +100,7 @@
     vlc
     papers # lightweight pdf reader
     xournalpp # pdf editing
+    anki
 
     # communication
     slack
