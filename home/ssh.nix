@@ -83,6 +83,8 @@ _: {
         HostName = "horeka.scc.kit.edu";
         User = "co7453";
         IdentityFile = "~/.ssh/id_ed25519";
+	RemoteCommand = "export HOME=/home/hk-project-pai00139/co7453 && exec bash -l";
+	RequestTTY = "force";
       };
     };
   };
