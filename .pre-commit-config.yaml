@@ -3,7 +3,7 @@ repos:
     hooks:
       - id: alejandra
         name: Check Nix formatting (Alejandra)
-        entry: nix run nixpkgs#alejandra -- --check
+        entry: nix run nixpkgs#alejandra
         language: system
         types: [nix]
 
